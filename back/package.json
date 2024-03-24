@@ -1,0 +1,25 @@
+{
+    "name": "back",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "cors": "^2.8.5",
+        "docxtemplater": "^3.46.0",
+        "docxtemplater-image-module": "^3.1.0",
+        "docxtemplater-image-module-free": "^1.1.1",
+        "dotenv": "^16.4.5",
+        "express": "^4.18.3",
+        "fs": "^0.0.1-security",
+        "jsonwebtoken": "^9.0.2",
+        "jszip": "^3.10.1",
+        "multer": "^1.4.5-lts.1",
+        "mysql2": "^3.9.2",
+        "nodemailer": "^6.9.12",
+        "open-docxtemplater-image-module": "^1.0.3",
+        "pizzip": "^3.1.6"
+    },
+    "scripts": {
+        "start": "node app.js"
+    }
+}
