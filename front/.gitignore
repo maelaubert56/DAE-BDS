@@ -19,6 +19,8 @@
 .env.production.local
 .env
 .env.server
+.env.temp
+
 
 npm-debug.log*
 yarn-debug.log*
