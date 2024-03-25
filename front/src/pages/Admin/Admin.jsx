@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
 
-import { FaCheck, FaCross, FaDownload, FaTimes } from "react-icons/fa";
+import { FaCheck, FaDownload, FaTimes } from "react-icons/fa";
 import { CiCircleRemove } from "react-icons/ci";
 import { FaSave } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
@@ -103,7 +103,34 @@ export default function Admin() {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `DAE_${form_id}.docx`;
+                    //DAE_nom_date.docx
+                    const name = `DAE_${forms.find(form => form.form_id === form_id).form_data.nom}_${forms.find(form => form.form_id === form_id).form_data.date}.docx`;
+                    a.download = name;
+                    a.click();
+                });
+            } else {
+                console.log("error downloading form");
+                alert('Error downloading form');
+            }
+        });
+    }
+
+    const downloadFormPdf = (form_id) => {
+        fetch(`${process.env.REACT_APP_API_URL}/api/form/download/${form_id}/pdf`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${localStorage.getItem('token')}`
+            } // if res.status === 200, then the form is downloaded , else, an error message is sent
+            //first, check the status of the response
+        }).then(res => {
+            if (res.status === 200) {
+                res.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    //DAE_nom_date.docx
+                    const name = `DAE_${forms.find(form => form.form_id === form_id).form_data.nom}_${forms.find(form => form.form_id === form_id).form_data.date}.docx`;
+                    a.download = name;
                     a.click();
                 });
             } else {
@@ -376,21 +403,28 @@ export default function Admin() {
                     <ListGroup className='w-100 h-100 pb-3'>
                         {
                             forms.map((form, index) => (
-                                <ListGroup.Item key={index} className='d-flex justify-content-between align-items-center'>
-                                    <div className="d-flex justify-content-start gap-3 align-items-center">
-                                        <input type="checkbox" checked={checkedForms.includes(form.form_id)} onChange={(e) => { setCheckedForms(e.target.checked ? [...checkedForms, form.form_id] : checkedForms.filter(id => id !== form.form_id)) }} />
-                                        {(form.form_type === 'DAE') && (<>
-                                            <Badge bg="secondary">DAE</Badge>
-                                            <span>{form.form_data.prenom} {form.form_data.nom}</span>
-                                            <span className="text-muted"><small>{form.form_data.date.split('-').reverse().join('/')}</small></span>
-                                            <span>raison : <span className="fw-semibold">{form.form_data.motif}</span></span>
+                                <ListGroup.Item key={index} className={`d-flex justify-content-between align-items-center ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'} gap-3 border p-3`}>
+                                    <div className={`d-flex justify-content-start gap-3 align-items-center ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'}`}>
 
+                                        {(form.form_type === 'DAE') ? (<>
+                                            <div className="d-flex gap-3 align-items-center">
+                                                <input type="checkbox" checked={checkedForms.includes(form.form_id)} onChange={(e) => { setCheckedForms(e.target.checked ? [...checkedForms, form.form_id] : checkedForms.filter(id => id !== form.form_id)) }} />
+                                                <Badge bg="secondary">DAE</Badge>
+                                                <span>{form.form_data.prenom} {form.form_data.nom}</span>
+                                                <span className="text-muted"><small>{form.form_data.date.split('-').reverse().join('/')}</small></span>
+                                            </div>
+                                            <div className="d-flex gap-3 align-items-center">
+                                                <span>raison : <span className="fw-semibold">{form.form_data.motif}</span></span>
+                                            </div>
                                         </>
+                                        ) : (
+                                            <input type="checkbox" checked={checkedForms.includes(form.form_id)} onChange={(e) => { setCheckedForms(e.target.checked ? [...checkedForms, form.form_id] : checkedForms.filter(id => id !== form.form_id)) }} />
                                         )}
                                     </div>
-                                    <div className="d-flex justify-content-between align-items-center gap-3">
+                                    <div className={`d-flex justify-content-between align-items-center gap-3 ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'}`}>
                                         <span className="text-muted d-flex flex-row"><small>{user.users_permissions >= 1 && (`reçu par ${form.form_sentTo}`)}</small></span>
                                         {(form.form_statut === 'accepted') && (<div className="d-flex gap-3 justify-content-between align-items-center">
+                                            <FaDownload color='#3747fa' className="border rounded p-2" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { downloadFormPdf(form.form_id) }} />
                                             <MdEdit color='text-primary' className="border rounded p-1" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { setSelectedForm(form); handleOpenReview() }} />
                                             <FaDownload className="border rounded p-2" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { downloadForm(form.form_id) }} />
                                             <FaCheck color='green' /></div>)}

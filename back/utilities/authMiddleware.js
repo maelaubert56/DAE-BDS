@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { end } = require('./db');
+const db = require('./db');
 // find secret key in .env file
 require('dotenv').config();
 
@@ -16,10 +16,16 @@ function authenticateToken(req, res, next) {
             console.log(err);
             return res.status(403).json({ message: 'Forbidden: Invalid token' });
         }
-        
-        console.log('Ok (' + user.users_email + ')\n');
-        req.user = user;
-        next();
+        db.execute('SELECT * FROM users WHERE users_email = ?', [user.users_email]).then(([rows]) => {
+            if (rows.length === 0) {
+                console.log('User not found');
+                return res.status(403).json({ message: 'Forbidden: Invalid token' });
+            }
+            const user = rows[0];
+            console.log('Ok (' + user.users_email + ')\n');
+            req.user = user;
+            next();
+        });
     });
 }
 

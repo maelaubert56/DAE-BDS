@@ -9,16 +9,31 @@ import React, { useEffect, useState } from 'react';
 export default function Header() {
 
     const [isLogged, setIsLogged] = useState(false);
+    const [user, setUser] = useState([]);
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
-            // do a request to /api/me to check if the token is still valid
-            setIsLogged(true);
+            fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => {
+                if (res.status !== 200) {
+                    setIsLogged(false);
+                }
+                return res.json();
+            }
+            ).then(data => {
+                setIsLogged(true);
+                setUser(data.user);
+            })
         }
     }, []);
 
     return (
-        <Navbar expand="lg" className="bg-body-tertiary">
+        <Navbar expand="lg" style={{ backgroundColor: '#242d52' }} variant="dark">
             <Container>
                 <Navbar.Brand href="/">
                     <img
@@ -40,7 +55,9 @@ export default function Header() {
                         {isLogged ?(
                             <NavDropdown title="Admin" id="basic-nav-dropdown">
                                 <NavDropdown.Item href="/admin">Dashboard</NavDropdown.Item>
+                                {user.users_permissions === 2 &&
                                 <NavDropdown.Item href="/admin/manage-members">Manage Members</NavDropdown.Item>
+                                }
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item onClick={() => { localStorage.removeItem('token'); window.location.href = '/login' }}>
                                     Log out

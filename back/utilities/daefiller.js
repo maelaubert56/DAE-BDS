@@ -32,11 +32,18 @@ const daeFiller = (data) => {
 
     const buf = doc.getZip().generate({ type: 'nodebuffer' }); // get the buffer of the rendered document
 
-    var filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}.docx`); // create the path of the filled document
     // if the filename already exists, add a number to the filename
     let i = 1;
+    if (data.date.includes('/')) {
+        data.date = data.date.replace(/\//g, '-');
+    }
+    var filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}.docx`); // create the path of the filled document
+    console.log('DAE path: ', filledDAEPath);
+
     while (fs.existsSync(filledDAEPath)) {
         console.log('file exists')
+        // if there are '/' in the data.date, replace them with '-'
+        
         filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}_${i}.docx`);
         i++;
     }

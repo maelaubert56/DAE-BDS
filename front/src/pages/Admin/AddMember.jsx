@@ -42,10 +42,14 @@ export default function AddMember() {
     }, []);
 
 
-    const handleSubmit = (form) => {
+    const handleSubmit = () => {
         const formData = new FormData();
         formData.append('email', form.email);
-        formData.append('isAdmin', form.isAdmin);
+        if (form.isAdmin) {
+            formData.append('isAdmin', 1);
+        } else {
+            formData.append('isAdmin', 0);
+        }
         formData.append('nom', form.nom);
         formData.append('prenom', form.prenom);
         formData.append('username', form.username);
@@ -120,7 +124,7 @@ export default function AddMember() {
                                 </Form.Group>
                             </div>
                         </div>
-                        <Button variant="primary" type="submit" onClick={(e) => {e.preventDefault(); handleSubmit(form)}}>
+                        <Button variant="primary" type="submit" onClick={(e) => {e.preventDefault(); handleSubmit()}}>
                             Submit
                         </Button>
                     </Form>

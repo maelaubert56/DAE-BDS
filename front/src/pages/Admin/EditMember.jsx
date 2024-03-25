@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 export default function EditMember() {
+    const [deleteModal, setDeleteModal] = useState(false);
+    const handleCloseModal = () => setDeleteModal(false);
+    const handleShowModal = () => setDeleteModal(true);
+
     const [form, setForm] = useState({
         email: '',
         isAdmin: 0,
@@ -15,6 +20,7 @@ export default function EditMember() {
     });
 
     const [user, setUser] = useState([]);
+    const [editedUser, setEditedUser] = useState([]);
 
 
     useEffect(() => {
@@ -58,6 +64,7 @@ export default function EditMember() {
             }
             ).then(data => {
                 console.log(data);
+                setEditedUser(data.user);
                 setForm(
                     {
                         email: data.user.users_email,
@@ -144,19 +151,45 @@ export default function EditMember() {
                             <div className="d-flex justify-content-between align-items-center gap-0 gap-sm-3 flex-column flex-sm-row">
                                 <Form.Group className="mb-3 w-100" controlId="formBasicDAE_template_file">
                                     <Form.Label>DAE template file</Form.Label>
-                                    <Form.Control type="file" placeholder="DAE template file" onChange={(e) => setForm({ ...form, DAE_template_file: e.target.files[0] })} value={form.DAE_template_file} />
+                                    <Form.Control type="file" placeholder="DAE template file" onChange={(e) => setForm({ ...form, DAE_template_file: e.target.files[0] })}/>
                                 </Form.Group>
-                                <Form.Group className=" w-100 d-flex align-items-center" controlId="formBasicIsAdmin">
-                                    <Form.Check type="switch" label="is admin" onChange={(e) => setForm({ ...form, isAdmin: e.target.checked })} checked={form.isAdmin} />
-                                </Form.Group>
+                                <div className="w-100 d-flex justify-content-between align-items-center gap-0 gap-sm-3 flex-column flex-sm-row">
+                                    <Form.Group className="d-flex align-items-center" controlId="formBasicIsAdmin">
+                                        <Form.Check type="switch" label="Administrateur" onChange={(e) => setForm({ ...form, isAdmin: e.target.checked })} checked={form.isAdmin} />
+                                    </Form.Group>
+                                    {(editedUser.users_permissions !== 2 && editedUser.users_email !== user.users_email) &&
+                                        <Button variant="danger" onClick={handleShowModal}>Supprimer l'utilisateur</Button>
+                                    }
+                                </div>
                             </div>
                         </div>
-                        <Button variant="primary" type="submit" onClick={(e) => {e.preventDefault(); handleSubmit(form)}}>
+                        <Button variant="primary" type="submit" onClick={(e) => { e.preventDefault(); handleSubmit(form) }}>
                             Submit
                         </Button>
                     </Form>
                 </div>
             </div>
+
+
+
+            <Modal show={deleteModal}
+                onHide={handleCloseModal}
+                animation={false}
+                >
+                <Modal.Header closeButton>
+                    <Modal.Title>Supprimer l'utilisateur</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Vous etes sur le point de supprimer {form.email}.<br/>Voulez-vous continuer ?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Annuler
+                    </Button>
+                    <Button variant="danger" onClick={(e) => { e.preventDefault(); handleCloseModal(); fetch(`${process.env.REACT_APP_API_URL}/api/users/${form.email}`, { method: 'DELETE', headers: { 'Authorization': `${localStorage.getItem('token')}` } }).then(res => { if (res.status === 200) { window.location.href = '/admin/manage-members'; } }) }}>
+                        Supprimer
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 };

@@ -64,7 +64,7 @@ export default function ManageMembers() {
 
 
     return (
-        <div className="container w-100 d-flex gap-1 flex-column justify-content-between align-items-center">
+        <div className="container w-100 h-100 d-flex gap-1 flex-column justify-content-start align-items-center">
             <div className="d-flex w-100 gap-0 flex-column justify-content-between align-items-center">
             <h2 className="text-center p-0 m-0 pt-2">Manage Members</h2>
             <Button href="/admin/add-member" className="my-3">Create Member</Button>

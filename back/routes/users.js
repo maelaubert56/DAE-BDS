@@ -79,8 +79,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
     console.log("route : GET api/users/:id")
     try {
         //check if the user is admin (users_permissions == 2)
-        if (req.user.users_permissions.toString() != '2') {
-            console.log('permission : ' + req.user.users_permissions + 'with typ')
+        if (req.user.users_permissions != 2) {
+            console.log('permission : ' + req.user.users_permissions + 'with type : ' + typeof (req.user.users_permissions));
             return res.status(403).json({ message: 'Forbidden: Invalid permissions' });
         }
         // fetch the user with the email
@@ -111,6 +111,7 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 // POST /api/users (auth middleware and saveFile middleware)
 router.post('/', authenticateToken, upload.single('DAE_template_file'), async function (req, res){
@@ -148,7 +149,7 @@ router.post('/', authenticateToken, upload.single('DAE_template_file'), async fu
 router.put('/:email', authenticateToken, upload.single('DAE_template_file'), async function (req, res){
     console.log("route : PUT api/users")
     try {
-        const {isAdmin, nom, prenom, username, password, users_group} = req.body;
+        var {isAdmin, nom, prenom, username, password, users_group} = req.body;
         const email = req.params.email;
 
         // hash the password if it is not empty
@@ -158,7 +159,11 @@ router.put('/:email', authenticateToken, upload.single('DAE_template_file'), asy
         }
 
         // update the user in the database
-        await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_group = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, hashedPassword, users_group, email]);
+        //check if the user has the permission 2
+        if (req.user.users_permissions === 2) {
+            isAdmin = 2;
+        }
+        await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_group = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, users_group, email]);
 
         // send the user information to the client
         res.status(200).json({ message: 'User updated' });
@@ -168,6 +173,32 @@ router.put('/:email', authenticateToken, upload.single('DAE_template_file'), asy
     }
 });
 
-router
+router.delete('/:email', authenticateToken, async function (req, res){
+    console.log("route : DELETE api/users")
+    try {
+        const email = req.params.email;
 
+        // check if the requester is permission == 2, check if the user to delete is permission != 2 and is not the requester, then delete the user
+        const [rows] = await db.execute('SELECT * FROM users WHERE users_email = ?', [email]);
+        const user = rows[0];
+        if (req.user.users_permissions != 2 || user.users_permissions == 2){
+            return res.status(403).json({ message: 'Forbidden: Invalid permissions' });
+        }
+
+        if (req.user.users_email == email){
+            return res.status(403).json({ message: 'Forbidden: Cannot delete yourself' });
+        }
+
+        // delete the user from the database
+        await db.execute('DELETE FROM users WHERE users_email = ?', [email]);
+
+        // send the user information to the client
+        res.status(200).json({ message: 'User deleted' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+);
 module.exports = router;
