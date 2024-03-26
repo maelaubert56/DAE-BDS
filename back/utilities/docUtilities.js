@@ -5,13 +5,15 @@ const path = require('path');
 const fs = require('fs');
 const Docxtemplater = require('docxtemplater');
 const PizZip = require('pizzip');
+const docxtopdf = require('docx-pdf');
+
 
 
 const daeFiller = (data) => {
     const daeTemplatePath = path.join(__dirname, `../files/forms/templates/DAE_template_${data.signedByEmail}.docx`); // create the path of the template document
 
     const word = new PizZip(fs.readFileSync(daeTemplatePath)); // read the content of the docx file
-    const doc = new Docxtemplater(word,{ linebreaks: true }); // create a new instance of the docxtemplater
+    const doc = new Docxtemplater(word, { linebreaks: true }); // create a new instance of the docxtemplater
 
 
     //create a string for all the courses that will be placed at {cours}
@@ -22,7 +24,7 @@ const daeFiller = (data) => {
     data.cours = courses;
 
     console.log(data)
-    doc.setData(data); 
+    doc.setData(data);
 
     try {
         doc.render(); // render the document (replace the variables with the data)
@@ -43,7 +45,7 @@ const daeFiller = (data) => {
     while (fs.existsSync(filledDAEPath)) {
         console.log('file exists')
         // if there are '/' in the data.date, replace them with '-'
-        
+
         filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}_${i}.docx`);
         i++;
     }
@@ -51,4 +53,29 @@ const daeFiller = (data) => {
     return path.basename(filledDAEPath);
 }
 
-module.exports = daeFiller;
+const docxToPdf = async (docxPath) => {
+    try {
+        // get the api key from the .env file
+        const apiKey = process.env.CONVERT_API_KEY;
+        const fileName = path.basename(docxPath, '.docx');
+
+        var convertapi = require('convertapi')(apiKey);
+        const result = await convertapi.convert('pdf', {
+            File: docxPath,
+            FileName: fileName
+        }, 'docx');
+        
+        await result.saveFiles(`files/forms/filled`);
+        // get the path were the pdf was saved
+        console.log("Successfully converted file")
+        const pdfPath = path.join(__dirname, `../files/forms/filled/${fileName}.pdf`);
+        console.log(pdfPath);
+        return pdfPath;
+    } catch (error) {
+        console.error(error.toString());
+        throw error; // throw the error to be caught in the calling function
+    }
+}
+
+
+module.exports = { daeFiller, docxToPdf };

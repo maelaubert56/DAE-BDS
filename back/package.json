@@ -4,7 +4,9 @@
     "private": true,
     "dependencies": {
         "bcrypt": "^5.1.1",
+        "convertapi": "^1.14.0",
         "cors": "^2.8.5",
+        "docx-pdf": "^0.0.1",
         "docxtemplater": "^3.46.0",
         "docxtemplater-image-module": "^3.1.0",
         "docxtemplater-image-module-free": "^1.1.1",

@@ -149,118 +149,116 @@ export default function FormDAE() {
 
 
     return (
-        <div>
-            <div className="container-fluid my-5">
-                <div className="row justify-content-center">
-                    <div className="col-sm-12 col-lg-8">
-                        <h3 className='text-center w-100 pb-3'>Formulaire DAE</h3>
-                        <Form className='d-flex justify-content-between flex-column w-100 m-auto px-5 '>
-                            <div>
-                                <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
-                                    <Form.Group className="mb-3 w-100" controlId="nom">
-                                        <Form.Label>Nom</Form.Label>
-                                        <Form.Control type="text" placeholder="Entrez votre nom" required onChange={(e) => handleInputChange(e, -1)} value={student.nom} />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3 w-100" controlId="prenom">
-                                        <Form.Label>Prénom</Form.Label>
-                                        <Form.Control type="text" placeholder="Entrez votre prénom" required onChange={(e) => handleInputChange(e, -1)} value={student.prenom} />
-                                    </Form.Group>
-                                </div>
-                                <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
-                                    <Form.Group className="mb-3 w-100" controlId="classe">
-                                        <Form.Label>Classe</Form.Label>
-                                        <Form.Control as="select" required onChange={(e) => handleInputChange(e, -1)}>
-                                            <option defaultValue selected disabled value='' >Choisissez votre classe</option>
-                                            <option value='L1'>L1</option>
-                                            <option value='L2'>L2</option>
-                                            <option value='L3'>L3</option>
-                                            <option value='M1'>M1</option>
-                                            <option value='M2'>M2</option>
-                                            <option valut='B1'>B1</option>
-                                            <option value='B2'>B2</option>
-                                            <option value='B3'>B3</option>
-                                            <option value='Autre'>Autre</option>
-                                        </Form.Control>
+        <div className="container-fluid my-5">
+            <div className="row justify-content-center">
+                <div className="col-sm-12 col-lg-8">
+                    <h3 className='text-center w-100 pb-3'>Formulaire DAE</h3>
+                    <Form className='d-flex justify-content-between flex-column w-100 m-auto px-5 '>
+                        <div>
+                            <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
+                                <Form.Group className="mb-3 w-100" controlId="nom">
+                                    <Form.Label>Nom</Form.Label>
+                                    <Form.Control type="text" placeholder="Entrez votre nom" required onChange={(e) => handleInputChange(e, -1)} value={student.nom} />
+                                </Form.Group>
+                                <Form.Group className="mb-3 w-100" controlId="prenom">
+                                    <Form.Label>Prénom</Form.Label>
+                                    <Form.Control type="text" placeholder="Entrez votre prénom" required onChange={(e) => handleInputChange(e, -1)} value={student.prenom} />
+                                </Form.Group>
+                            </div>
+                            <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
+                                <Form.Group className="mb-3 w-100" controlId="classe">
+                                    <Form.Label>Classe</Form.Label>
+                                    <Form.Control as="select" required onChange={(e) => handleInputChange(e, -1)}>
+                                        <option defaultValue selected disabled value='' >Choisissez votre classe</option>
+                                        <option value='L1'>L1</option>
+                                        <option value='L2'>L2</option>
+                                        <option value='L3'>L3</option>
+                                        <option value='M1'>M1</option>
+                                        <option value='M2'>M2</option>
+                                        <option valut='B1'>B1</option>
+                                        <option value='B2'>B2</option>
+                                        <option value='B3'>B3</option>
+                                        <option value='Autre'>Autre</option>
+                                    </Form.Control>
 
-                                    </Form.Group>
-                                    <Form.Group className="mb-3 w-100" controlId="groupeTD">
-                                        <Form.Label>Groupe de TD</Form.Label>
-                                        <Form.Control type="text" placeholder="Entrez votre groupe de TD" required onChange={(e) => handleInputChange(e, -1)} value={student.groupeTD} />
-                                    </Form.Group>
-                                </div>
-                                <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
-                                    <Form.Group className="mb-3 w-100" controlId="mail">
-                                        <Form.Label>Mail</Form.Label>
-                                        <Form.Control type="email" placeholder="Entrez votre mail pour recevoir la DAE" required onChange={(e) => handleInputChange(e, -1)} value={student.mail} />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3  w-100" controlId="date">
-                                        <Form.Label>Date d'absence</Form.Label>
-                                        <Form.Control type="date" required onChange={(e) => handleInputChange(e, -1)} value={student.date} />
-                                    </Form.Group>
-                                </div>
-                                <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
-                                    <Form.Group className="mb-3 w-100" controlId="motif">
-                                        <Form.Label>Motif</Form.Label>
-                                        <Form.Control type="text" placeholder="Entrez le motif de la DAE" required onChange={(e) => handleInputChange(e, -1)} value={student.motif} />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3  w-100" controlId="sendToGroup" >
-                                        <Form.Label>Envoyer à</Form.Label>
-                                        <Form.Control as="select" onChange={(e) => { handleInputChange(e, -1) }}>
-                                            <option defaultValue selected disabled value=''>Choisissez un destinataire</option> 
-                                            {(adminList.length > 0) &&
-                                                adminList
-                                                    .filter((admin, index, self) =>
-                                                        index === self.findIndex((a) => a.users_group === admin.users_group)
-                                                    )
-                                                    .map((admin, index) => (
-                                                        <option key={index} value={admin._users_group}>{admin.users_group}</option>
-                                                    ))}
-                                        </Form.Control>
-                                    </Form.Group>
-                                    {(student.sendToGroup !== '') && (
-                                        <Form.Group className="mb-3  w-100" controlId="sendTo">
-                                            <Form.Label>Envoyer à</Form.Label>
-                                            <Form.Control as="select" onChange={(e) => handleInputChange(e, -1)}>
-                                                <option defaultValue selected disabled value=''>Choisissez un destinataire</option>
-                                                <option value='all'>Tous</option>
-                                                {(adminList.length > 0) && adminList.map((admin, index) => (
-                                                    (admin.users_group === student.sendToGroup) && <option key={index} value={admin.users_email}>{admin.users_username}</option>
+                                </Form.Group>
+                                <Form.Group className="mb-3 w-100" controlId="groupeTD">
+                                    <Form.Label>Groupe de TD</Form.Label>
+                                    <Form.Control type="text" placeholder="Entrez votre groupe de TD" required onChange={(e) => handleInputChange(e, -1)} value={student.groupeTD} />
+                                </Form.Group>
+                            </div>
+                            <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
+                                <Form.Group className="mb-3 w-100" controlId="mail">
+                                    <Form.Label>Mail</Form.Label>
+                                    <Form.Control type="email" placeholder="Entrez votre mail pour recevoir la DAE" required onChange={(e) => handleInputChange(e, -1)} value={student.mail} />
+                                </Form.Group>
+                                <Form.Group className="mb-3  w-100" controlId="date">
+                                    <Form.Label>Date d'absence</Form.Label>
+                                    <Form.Control type="date" required onChange={(e) => handleInputChange(e, -1)} value={student.date} />
+                                </Form.Group>
+                            </div>
+                            <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
+                                <Form.Group className="mb-3 w-100" controlId="motif">
+                                    <Form.Label>Motif</Form.Label>
+                                    <Form.Control type="text" placeholder="Entrez le motif de la DAE" required onChange={(e) => handleInputChange(e, -1)} value={student.motif} />
+                                </Form.Group>
+                                <Form.Group className="mb-3  w-100" controlId="sendToGroup" >
+                                    <Form.Label>Envoyer à</Form.Label>
+                                    <Form.Control as="select" onChange={(e) => { handleInputChange(e, -1) }}>
+                                        <option defaultValue selected disabled value=''>Choisissez un destinataire</option> 
+                                        {(adminList.length > 0) &&
+                                            adminList
+                                                .filter((admin, index, self) =>
+                                                    index === self.findIndex((a) => a.users_group === admin.users_group)
+                                                )
+                                                .map((admin, index) => (
+                                                    <option key={index} value={admin._users_group}>{admin.users_group}</option>
                                                 ))}
-                                            </Form.Control>
-                                        </Form.Group>
-                                    )}
+                                    </Form.Control>
+                                </Form.Group>
+                                {(student.sendToGroup !== '') && (
+                                    <Form.Group className="mb-3  w-100" controlId="sendTo">
+                                        <Form.Label>Envoyer à</Form.Label>
+                                        <Form.Control as="select" onChange={(e) => handleInputChange(e, -1)}>
+                                            <option defaultValue selected disabled value=''>Choisissez un destinataire</option>
+                                            <option value='all'>Tous</option>
+                                            {(adminList.length > 0) && adminList.map((admin, index) => (
+                                                (admin.users_group === student.sendToGroup) && <option key={index} value={admin.users_email}>{admin.users_username}</option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
+                                )}
 
-                                </div>
                             </div>
-                            <div className="d-flex justify-content-between flex-column w-100 mb-3">
-                                {courses.map((course, index) => (
-                                    <div key={index} className="mb-3 d-flex justify-content-between flex-column align-items-center w-100 border p-3">
-                                        <div className="d-flex justify-content-between w-100">
-                                            <p className="fw-semibold">
-                                                Cours {index + 1}</p>
-                                            <CiCircleRemove className="text-secondary" style={{ cursor: 'pointer', width: '1.5em', height: '1.5em' }} onClick={() => handleRemoveCourse(index)} />
-                                        </div>
-                                        <Form.Group className="mb-3 w-100" controlId="matiere">
-                                            <Form.Label>Code et intitulé du cours concerné</Form.Label>
-                                            <Form.Control type="text" placeholder="Entrez le code et l'intitulé du cours" required onChange={(e) => handleInputChange(e, index)} value={course.matiere} />
-                                        </Form.Group>
-                                        <div className="d-flex w-100 justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
-                                            <Form.Group className="mb-3 w-100" controlId="heureDebut">
-                                                <Form.Label>Heure de début</Form.Label>
-                                                <Form.Control type="time" required onChange={(e) => handleInputChange(e, index)} value={course.heureDebut} />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3 w-100" controlId="heureFin">
-                                                <Form.Label>Heure de fin</Form.Label>
-                                                <Form.Control type="time" required onChange={(e) => handleInputChange(e, index)} value={course.heureFin} />
-                                            </Form.Group>
-                                        </div>
+                        </div>
+                        <div className="d-flex justify-content-between flex-column w-100 mb-3">
+                            {courses.map((course, index) => (
+                                <div key={index} className="mb-3 d-flex justify-content-between flex-column align-items-center w-100 border p-3">
+                                    <div className="d-flex justify-content-between w-100">
+                                        <p className="fw-semibold">
+                                            Cours {index + 1}</p>
+                                        <CiCircleRemove className="text-secondary" style={{ cursor: 'pointer', width: '1.5em', height: '1.5em' }} onClick={() => handleRemoveCourse(index)} />
                                     </div>
-                                ))}
-                                <Button variant="secondary" className={`m-auto ${window.innerWidth < 576 ? 'w-75' : 'w-50'}`} onClick={handleAddCourse}> + Ajouter un cours</Button>
-                            </div>
-                            <Button variant="primary" type="submit" onClick={handleSubmit}>Submit</Button>
-                        </Form>
-                    </div>
+                                    <Form.Group className="mb-3 w-100" controlId="matiere">
+                                        <Form.Label>Code et intitulé du cours concerné</Form.Label>
+                                        <Form.Control type="text" placeholder="Entrez le code et l'intitulé du cours" required onChange={(e) => handleInputChange(e, index)} value={course.matiere} />
+                                    </Form.Group>
+                                    <div className="d-flex w-100 justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
+                                        <Form.Group className="mb-3 w-100" controlId="heureDebut">
+                                            <Form.Label>Heure de début</Form.Label>
+                                            <Form.Control type="time" required onChange={(e) => handleInputChange(e, index)} value={course.heureDebut} />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3 w-100" controlId="heureFin">
+                                            <Form.Label>Heure de fin</Form.Label>
+                                            <Form.Control type="time" required onChange={(e) => handleInputChange(e, index)} value={course.heureFin} />
+                                        </Form.Group>
+                                    </div>
+                                </div>
+                            ))}
+                            <Button variant="secondary" className={`m-auto ${window.innerWidth < 576 ? 'w-75' : 'w-50'}`} onClick={handleAddCourse}> + Ajouter un cours</Button>
+                        </div>
+                        <Button variant="primary" type="submit" onClick={handleSubmit}>Submit</Button>
+                    </Form>
                 </div>
             </div>
         </div>

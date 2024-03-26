@@ -6,10 +6,8 @@ const authenticateToken = require('../utilities/authMiddleware');
 const multer = require('multer');
 const path = require('path'); // Importation du module path
 const fs = require('fs');
-const daeFiller = require('../utilities/daefiller');
 const nodemailer = require("nodemailer");
-const libre = require('libreoffice-convert');
-libre.convertAsync = require('util').promisify(libre.convert);
+const { daeFiller,docxToPdf } = require('../utilities/docUtilities');
 
 const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -170,27 +168,9 @@ router.get('/download/:id/pdf', authenticateToken, async (req, res) => {
             return;
         }
         const filePath = path.join(__dirname, `../files/forms/filled/${form[0].form_pdf}`);
-        console.log(filePath);
-        const pdfPath = path.join(__dirname, `../files/forms/filled/${form[0].form_pdf.split('.')[0]}.pdf`);
-        const docxBuf = fs.readFile(filePath, async (err, data) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({ error: err.message });
-            }
-            try {
-                const pdfBuf = await libre.convertAsync(data, '.pdf', undefined);
-                fs.writeFile(pdfPath, pdfBuf, (err) => {
-                    if (err) {
-                        console.error(err);
-                        res.status(500).json({ error: err.message });
-                    }
-                    res.download(pdfPath);
-                });
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ error: error.message });
-            }
-        });
+        const pdfPath = await docxToPdf(filePath);
+        console.log('before download: ', pdfPath);
+        res.download(pdfPath); // in the front end, the file will be downloaded
 
     } catch (error) {
         console.log(error);

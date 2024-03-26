@@ -20,18 +20,27 @@ export default function Student() {
         });
     }, [formId]);
 
-    return (
-        <div>
-            {formId === 'DAE' && <FormDAE />}
-            {formId !== 'DAE' && <div className="d-flex justify-content-center align-items-center flex-column">
-            <div className="d-flex justify-content-center align-items-center flex-column my-5">
-                <p>Choisissez un form :</p>
-                <div className="d-flex justify-content-between gap-2 flex-wrap">
-                <Button href="#DAE" variant='outline-primary'>DAE</Button>
-                </div>
+    return (<>
+        {formId === 'DAE' && 
+        <div className="flex-fill w-100 d-flex justify-content-center align-items-center bg-white">
+            <FormDAE />
+        </div>
+        }
+        
+        {formId !== 'DAE' &&
+        <div style={{backgroundImage: 'url(/banniere_bds.png)', backgroundSize: 'cover', backgroundAttachment: 'fixed'}} className="d-flex justify-content-center align-items-center flex-column flex-fill">
+            <div className="flex-fill w-100 d-flex justify-content-center align-items-center" style={{backgroundColor: 'rgba(0, 0, 0, 0.2)'}}>
+                <div className="d-flex justify-content-center align-items-center flex-column w-100" >
+                    <div className="d-flex justify-content-center align-items-center gap-3 flex-column">
+                        <h3 className='text-light'>Choisissez un form :</h3>
+                        <div className="d-flex justify-content-between gap-2 flex-wrap">
+                            <Button size='lg' href="#DAE" variant='outline-light'>DAE</Button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            }
         </div>
+        }
+        </>
     );
 }

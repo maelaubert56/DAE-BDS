@@ -4,6 +4,7 @@ require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const authenticateToken = require('./utilities/authMiddleware');
+const { docxToPdf } = require('./utilities/docUtilities');
 
 app.use(function (req, res, next) {
     // Website you wish to allow to connect

@@ -33,7 +33,7 @@ export default function Header() {
     }, []);
 
     return (
-        <Navbar expand="lg" style={{ backgroundColor: '#242d52' }} variant="dark">
+        <Navbar expand="lg" style={{ backgroundColor: '#242d52' }} data-bs-theme="dark" >
             <Container>
                 <Navbar.Brand href="/">
                     <img
@@ -41,7 +41,7 @@ export default function Header() {
                         width="50"
 
                         className="d-inline-block align-top"
-                        alt="React Bootstrap logo"
+                        alt="BDS Efrei Logo"
                     />
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />

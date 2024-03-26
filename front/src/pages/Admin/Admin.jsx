@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form';
 import Badge from 'react-bootstrap/Badge';
+import Spinner from 'react-bootstrap/Spinner';
 
 import { FaCheck, FaDownload, FaTimes } from "react-icons/fa";
 import { CiCircleRemove } from "react-icons/ci";
@@ -16,6 +17,7 @@ export default function Admin() {
     const [users, setUsers] = useState([{}]);
     const [forms, setForms] = useState([]);
     const [nbForms, setNbForms] = useState(0);
+    const [isLoading, setIsLoading] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
     const [checkedForms, setCheckedForms] = useState([]);
     const [reviewModal, setReviewModal] = useState(false);
@@ -91,6 +93,7 @@ export default function Admin() {
 
 
     const downloadForm = (form_id) => {
+        setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: prevState[form_id].pdf, docx: true } }));
         fetch(`${process.env.REACT_APP_API_URL}/api/form/download/${form_id}`, {
             method: 'GET',
             headers: {
@@ -107,15 +110,18 @@ export default function Admin() {
                     const name = `DAE_${forms.find(form => form.form_id === form_id).form_data.nom}_${forms.find(form => form.form_id === form_id).form_data.date}.docx`;
                     a.download = name;
                     a.click();
+                    setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: prevState[form_id].pdf, docx: false } }));
                 });
             } else {
                 console.log("error downloading form");
                 alert('Error downloading form');
+                setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: prevState[form_id].pdf, docx: false } }));
             }
         });
     }
 
     const downloadFormPdf = (form_id) => {
+        setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: true, docx: prevState[form_id].docx } }));
         fetch(`${process.env.REACT_APP_API_URL}/api/form/download/${form_id}/pdf`, {
             method: 'GET',
             headers: {
@@ -129,13 +135,15 @@ export default function Admin() {
                     const a = document.createElement('a');
                     a.href = url;
                     //DAE_nom_date.docx
-                    const name = `DAE_${forms.find(form => form.form_id === form_id).form_data.nom}_${forms.find(form => form.form_id === form_id).form_data.date}.docx`;
+                    const name = `DAE_${forms.find(form => form.form_id === form_id).form_data.nom}_${forms.find(form => form.form_id === form_id).form_data.date}.pdf`;
                     a.download = name;
                     a.click();
+                    setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: false, docx: prevState[form_id].docx } }));
                 });
             } else {
                 console.log("error downloading form");
                 alert('Error downloading form');
+                setIsLoading(prevState => ({ ...prevState, [form_id]: { pdf: false, docx: prevState[form_id].docx } }));
             }
         });
     }
@@ -157,8 +165,6 @@ export default function Admin() {
                 'Content-Type': 'application/json'
             }
         })
-
-
             .then(res => res.json())
             .then(data => {
                 data.forms = data.forms.map(form => {
@@ -168,6 +174,11 @@ export default function Admin() {
                 setForms(data.forms);
                 setNbForms(data.nb);
                 console.log("data updated");
+                //for each form, set isLoading to false
+                data.forms.map(form => {
+                    setIsLoading(prevState => ({ ...prevState, [form.form_id]: { pdf: false, docx: false } }));
+                    return form;
+                });
             });
     }
 
@@ -387,14 +398,34 @@ export default function Admin() {
                                 </Form.Group>
                             }
                             {checkedForms.length > 0 && (
-                                <Form.Group className={`d-flex mb-3 w-100 flex-column align-items-center`} controlId="actions">
-                                    <Form.Label>Actions :</Form.Label>
-                                    <div className={`d-flex gap-3 ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'}`} >
+                                <Form.Group className={`d-flex mb-3 gap-3 w-100 flex-column align-items-center`} controlId="actions">
+                                    
+                                    <div className="d-flex gap-3 align-items-center">
+                                        <p className="m-0 p-0">Télécharger :</p>  
+                                        <Button variant='outline-primary' size='sm' className="text-black" onClick={() => {
+                                            checkedForms.map(form_id => {
+                                                downloadForm(form_id);
+                                                return form_id;
+                                            });
+                                        }}><span>.docx</span></Button>
+                                        <Button variant='outline-primary' size='sm' className="text-black" onClick={() => {
+                                            checkedForms.map(form_id => {
+                                                downloadFormPdf(form_id);
+                                                return form_id;
+                                            });
+                                        }}><span>.pdf</span></Button>
+                                    </div>
+                                    <div className={`d-flex gap-2 flex-column w-100`} >
                                         <Button variant='outline-success' onClick={() => { handleAcceptChecked() }}>Accepter Tout</Button>
-                                        <Form.Control type="text" className='mt-2' placeholder="Raison du refus" onChange={(e) => setRefuseReason(e.target.value)} />
-                                        <Button variant='outline-danger' onClick={() => { handleRejectChecked() }}>Rejeter Tout</Button>
+                                        <div className="d-flex gap-3 flex-row w-100">
+                                            <Form.Control type="text" placeholder="Raison du refus" onChange={(e) => setRefuseReason(e.target.value)} />
+                                            <Button variant='outline-danger' className='w-50' onClick={() => { handleRejectChecked() }}>Rejeter Tout</Button>
+                                        </div>
                                         <Button variant='outline-danger' onClick={() => { handleDeleteChecked() }}>Supprimer Tout</Button>
                                     </div>
+                                    
+
+                                        
                                 </Form.Group>
 
                             )}
@@ -421,12 +452,27 @@ export default function Admin() {
                                             <input type="checkbox" checked={checkedForms.includes(form.form_id)} onChange={(e) => { setCheckedForms(e.target.checked ? [...checkedForms, form.form_id] : checkedForms.filter(id => id !== form.form_id)) }} />
                                         )}
                                     </div>
-                                    <div className={`d-flex justify-content-between align-items-center gap-3 ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'}`}>
+                                    <div className={`d-flex justify-content-between h-100 align-items-center gap-3 ${window.innerWidth < 576 ? 'flex-column' : 'flex-row'}`}>
                                         <span className="text-muted d-flex flex-row"><small>{user.users_permissions >= 1 && (`reçu par ${form.form_sentTo}`)}</small></span>
-                                        {(form.form_statut === 'accepted') && (<div className="d-flex gap-3 justify-content-between align-items-center">
-                                            <FaDownload color='#3747fa' className="border rounded p-2" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { downloadFormPdf(form.form_id) }} />
+                                        {(form.form_statut === 'accepted') && (<div className="d-flex gap-3 h-100 justify-content-between align-items-center">
+                                            <div className="h-75 border border-right-1" />
+                                            <Button variant='outline-primary' size='sm' className="text-black d-flex flex-row gap-1 align-items-center" onClick={() => { downloadFormPdf(form.form_id) }} style={{ cursor: 'pointer' }}>
+                                                { isLoading[form.form_id]?.pdf &&
+                                                <Spinner role="status" animation="border" size="sm">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </Spinner>
+                                                }
+                                                <span>.pdf</span>
+                                            </Button>
+                                            <Button variant='outline-primary' size='sm' className="text-black d-flex flex-row gap-1 align-items-center" onClick={() => { downloadForm(form.form_id) }} style={{ cursor: 'pointer' }}>
+                                                { isLoading[form.form_id]?.docx &&
+                                                <Spinner role="status" animation="border" size="sm">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </Spinner>
+                                                }
+                                                <span>.docx</span></Button>
+                                            <div className="h-75 border border-right-1" />
                                             <MdEdit color='text-primary' className="border rounded p-1" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { setSelectedForm(form); handleOpenReview() }} />
-                                            <FaDownload className="border rounded p-2" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { downloadForm(form.form_id) }} />
                                             <FaCheck color='green' /></div>)}
                                         {(form.form_statut === "to_review") && (<Button variant='outline-primary' size='sm' onClick={() => { setSelectedForm(form); handleOpenReview() }}>Review</Button>)}
                                         {(form.form_statut === 'rejected') && (<div className="d-flex gap-3 justify-content-between align-items-center">
