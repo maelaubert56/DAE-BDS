@@ -12,7 +12,7 @@ export default function Footer() { // un footer pour donner le contact en cas de
             <a className="text-underline-hover text-light" href="/mentions-legales">Mentions légales</a>
 
                 <span className="text-light"> | © 2024{' '}
-                    <a className="text-underline-hover fst-italic text-light" href="https://www.linkedin.com/in/mael-aubert/">Maël Aubert</a>
+                    <a className="text-underline-hover text-light" href="https://www.linkedin.com/in/mael-aubert/">Maël Aubert</a>
                 </span>
             </div>
         </footer>
