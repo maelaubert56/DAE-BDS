@@ -12,10 +12,11 @@ export default function AddMember() {
         username: '',
         password: '',
         users_group: '',
-        DAE_template_file: null
+        signature: null
     });
 
     const [user, setUser] = useState([]);
+    const [groups, setGroups] = useState([]);
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
@@ -39,6 +40,23 @@ export default function AddMember() {
         } else {
             window.location.href = '/login';
         }
+
+        fetch(`${process.env.REACT_APP_API_URL}/api/groups`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(res => {
+            if (res.status !== 200) {
+                window.location.href = '/login';
+            }
+            return res.json();
+        }
+        ).then(data => {
+            setGroups(data.groups);
+
+        })
     }, []);
 
 
@@ -55,7 +73,7 @@ export default function AddMember() {
         formData.append('username', form.username);
         formData.append('password', form.password);
         formData.append('users_group', form.users_group);
-        formData.append('DAE_template_file', form.DAE_template_file);
+        formData.append('signature', form.signature);
         console.log(form);
         fetch(`${process.env.REACT_APP_API_URL}/api/users`, {
             method: 'POST',
@@ -111,13 +129,18 @@ export default function AddMember() {
                                 </Form.Group>
                                 <Form.Group className="mb-3 w-100" controlId="formBasicUsersGroup">
                                     <Form.Label>Groupe</Form.Label>
-                                    <Form.Control type="text" placeholder="exemple : Bureau" onChange={(e) => setForm({ ...form, users_group: e.target.value })} />
+                                    <Form.Control as="select" onChange={(e) => setForm({ ...form, users_group: e.target.value })}>
+                                        <option value=''>Choisir un groupe</option>
+                                        {groups?.map((group, index) => {
+                                            return <option key={index} value={group.users_groups_name}>{group.users_groups_name}</option>
+                                        })}
+                                    </Form.Control>
                                 </Form.Group>
                             </div>
                             <div className="d-flex justify-content-between align-items-center gap-0 gap-sm-3 flex-column flex-sm-row">
-                                <Form.Group className="mb-3 w-100" controlId="formBasicDAE_template_file">
-                                    <Form.Label>DAE template file</Form.Label>
-                                    <Form.Control type="file" placeholder="DAE template file" onChange={(e) => setForm({ ...form, DAE_template_file: e.target.files[0] })} />
+                                <Form.Group className="mb-3 w-100" controlId="formBasicSignature">
+                                    <Form.Label>Signature</Form.Label>
+                                    <Form.Control type="file" placeholder="Signature" onChange={(e) => setForm({ ...form, signature: e.target.files[0] })} />
                                 </Form.Group>
                                 <Form.Group className=" w-100 d-flex align-items-center" controlId="formBasicIsAdmin">
                                     <Form.Check type="switch" label="is admin" onChange={(e) => setForm({ ...form, isAdmin: e.target.checked })} />

@@ -13,10 +13,10 @@ const path = require('path');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'files/forms/templates/');
+        cb(null, 'files/signatures');
     },
-    filename: function (req, file, cb) { // file name will be 'DAE_template_file'+email+'.docx'
-        cb(null, 'DAE_template_'+req.body.email+'.docx');
+    filename: function (req, file, cb) {
+        cb(null, 'signature_' + req.body.email + '.png');
     }
 });
 const upload = multer({ storage: storage });
@@ -61,7 +61,6 @@ router.post('/login', async (req, res) => {
 
 // GET /api/users/me
 router.get('/me', authenticateToken, async (req, res) => {
-    console.log("route : GET api/users/me")
     try {
         // fetch the user with the email
         const [rows] = await db.execute('SELECT * FROM users WHERE users_username = ?', [req.user.users_username]);
@@ -101,7 +100,7 @@ router.get('/', async (req, res) => {
     console.log("route : GET api/users")
     try {
         console.log("route : GET api/users")
-        const [rows] = await db.execute('SELECT users_email, users_username, users_group FROM users');
+        const [rows] = await db.execute('SELECT users_email, users_username, users_groups_name FROM users');
         const users = rows;
 
         // send the user information to the client
@@ -114,7 +113,7 @@ router.get('/', async (req, res) => {
 
 
 // POST /api/users (auth middleware and saveFile middleware)
-router.post('/', authenticateToken, upload.single('DAE_template_file'), async function (req, res){
+router.post('/', authenticateToken, upload.single('signature'), async function (req, res){
     console.log("route : POST api/users")
     try {
 
@@ -130,13 +129,17 @@ router.post('/', authenticateToken, upload.single('DAE_template_file'), async fu
             return res.status(409).json({ message: 'User already exists' });
         }
 
-        console.log(await db.execute('SELECT * FROM users WHERE users_email = ?', [email]));
+        const groupExist = await db.execute('SELECT * FROM users_groups WHERE users_groups_name = ?', [users_group]);
+        if (groupExist[0].length == 0) {
+            // create the group
+            await db.execute('INSERT INTO users_groups (users_groups_name, users_groups_type) VALUES (?, ASSO)', [users_group]);
+        }
 
         // hash the password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // insert the user into the database
-        await db.execute('INSERT INTO users (users_email, users_permissions, users_nom, users_prenom, users_username, users_password, users_group) VALUES (?, ?, ?, ?, ?, ?, ?)', [email, isAdmin, nom, prenom, username, hashedPassword, users_group]);
+        await db.execute('INSERT INTO users (users_email, users_permissions, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [email, isAdmin, nom, prenom, username, hashedPassword, `signature_${email}.png`, users_group]);
 
         // send the user information to the client
         res.status(200).json({ message: 'User added' });
@@ -146,25 +149,28 @@ router.post('/', authenticateToken, upload.single('DAE_template_file'), async fu
     }
 });
 
-router.put('/:email', authenticateToken, upload.single('DAE_template_file'), async function (req, res){
+router.put('/:email', authenticateToken, upload.single('signature'), async function (req, res){
     console.log("route : PUT api/users")
     try {
         var {isAdmin, nom, prenom, username, password, users_group} = req.body;
         const email = req.params.email;
 
-        // hash the password if it is not empty
-        if (password) {
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-            await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_group = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, hashedPassword, users_group, email]);
-        }
-
-        // update the user in the database
         //check if the user has the permission 2
         if (req.user.users_permissions === 2) {
             isAdmin = 2;
         }
-        await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_group = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, users_group, email]);
 
+        // hash the password if it is not empty
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_groups_name = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, hashedPassword, users_group, email]);
+        }
+        else {
+
+            // update the user in the database
+            
+            await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_groups_name = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, users_group, email]);
+        }
         // send the user information to the client
         res.status(200).json({ message: 'User updated' });
     } catch (err) {
@@ -192,6 +198,10 @@ router.delete('/:email', authenticateToken, async function (req, res){
         // delete the user from the database
         await db.execute('DELETE FROM users WHERE users_email = ?', [email]);
 
+        // delete the signature file
+        const signaturePath = path.join(__dirname, `../files/signatures/signature_${email}.png`);
+        fs.unlinkSync(signaturePath);
+
         // send the user information to the client
         res.status(200).json({ message: 'User deleted' });
     } catch (err) {
@@ -201,4 +211,6 @@ router.delete('/:email', authenticateToken, async function (req, res){
 }
 
 );
+
+
 module.exports = router;

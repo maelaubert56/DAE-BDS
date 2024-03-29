@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function FormDAE() {
     const [adminList, setAdminList] = useState([]);
-
+    const [groups, setGroups] = useState([]);
     const [student, setStudent] = useState({
         nom: '',
         prenom: '',
@@ -39,6 +39,19 @@ export default function FormDAE() {
                 setAdminList(data.users);
                 console.log(data);
             });
+
+        fetch(`${process.env.REACT_APP_API_URL}/api/groups`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${localStorage.getItem('token')}`
+            }
+        }).then(res => res.json())
+            .then(data => {
+                setGroups(data.groups);
+                console.log(data);
+            });
+
     }, []);
 
 
@@ -205,15 +218,21 @@ export default function FormDAE() {
                                 <Form.Group className="mb-3  w-100" controlId="sendToGroup" >
                                     <Form.Label>Envoyer à</Form.Label>
                                     <Form.Control as="select" onChange={(e) => { handleInputChange(e, -1) }}>
-                                        <option defaultValue selected disabled value=''>Choisissez un destinataire</option> 
+                                        <option defaultValue selected disabled value=''>Choisissez un destinataire</option>
                                         {(adminList.length > 0) &&
                                             adminList
                                                 .filter((admin, index, self) =>
-                                                    index === self.findIndex((a) => a.users_group === admin.users_group)
+                                                    index === self.findIndex((a) => a.users_groups_name === admin.users_groups_name)
                                                 )
                                                 .map((admin, index) => (
-                                                    <option key={index} value={admin._users_group}>{admin.users_group}</option>
-                                                ))}
+                                                    <>  
+                                                        {// get the group of the admin and compare it to the group variable to see if groups.users_groups_type ==== 'ASSO'
+                                                            groups?.find(group => group.users_groups_name === admin.users_groups_name)?.users_groups_type === 'ASSO' &&
+                                                            <option key={index} value={admin.users_groups_name}>{admin.users_groups_name}</option>
+                                                        }
+                                                    </>
+                                                ))
+                                        }
                                     </Form.Control>
                                 </Form.Group>
                                 {(student.sendToGroup !== '') && (
@@ -223,7 +242,7 @@ export default function FormDAE() {
                                             <option defaultValue selected disabled value=''>Choisissez un destinataire</option>
                                             <option value='all'>Tous</option>
                                             {(adminList.length > 0) && adminList.map((admin, index) => (
-                                                (admin.users_group === student.sendToGroup) && <option key={index} value={admin.users_email}>{admin.users_username}</option>
+                                                (admin.users_groups_name === student.sendToGroup) && <option key={index} value={admin.users_email}>{admin.users_username}</option>
                                             ))}
                                         </Form.Control>
                                     </Form.Group>

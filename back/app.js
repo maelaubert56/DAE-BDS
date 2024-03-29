@@ -4,7 +4,7 @@ require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const authenticateToken = require('./utilities/authMiddleware');
-const { docxToPdf } = require('./utilities/docUtilities');
+const { daeImageFiller } = require('./utilities/docUtilities');
 
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -44,7 +44,6 @@ app.use(function (req, res, next) {
     console.log('Method: ' + req.method);
     console.log('URL: ' + req.originalUrl);
     console.log('Body: ' + JSON.stringify(req.body));
-    console.log('\n')
     next();
 });
 
@@ -56,7 +55,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/users', require('./routes/users'));
 app.use('/api/form', require('./routes/form'));
-
+app.use('/api/groups', require('./routes/groups'));
 
 // start the server on port in .env file
 app.listen(process.env.PORT, function () {

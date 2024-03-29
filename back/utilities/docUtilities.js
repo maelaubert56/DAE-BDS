@@ -5,16 +5,26 @@ const path = require('path');
 const fs = require('fs');
 const Docxtemplater = require('docxtemplater');
 const PizZip = require('pizzip');
-const docxtopdf = require('docx-pdf');
+var ImageModule = require('open-docxtemplater-image-module');
+var JSZip = require('jszip');
+const { patchDocument, PatchType, ImageRun } = require('docx');
+const sizeOf = require('image-size');
 
+function nullGetter(part) {
+    if (part.raw) {
+        return "{" + part.raw + "}";
+    }
+    if (!part.module && part.value) {
+        return "{" + part.value + "}";
+    }
+    return "";
+}
 
-
-const daeFiller = (data) => {
-    const daeTemplatePath = path.join(__dirname, `../files/forms/templates/DAE_template_${data.signedByEmail}.docx`); // create the path of the template document
+const daeFiller = async (data) => {
+    const daeTemplatePath = path.join(__dirname, `../files/forms/templates/DAE_template.docx`); // create the path of the template document
 
     const word = new PizZip(fs.readFileSync(daeTemplatePath)); // read the content of the docx file
-    const doc = new Docxtemplater(word, { linebreaks: true }); // create a new instance of the docxtemplater
-
+    const doc = new Docxtemplater(word, {nullGetter, linebreaks: true }); // create a new instance of the docxtemplater
 
     //create a string for all the courses that will be placed at {cours}
     let courses = '';
@@ -23,7 +33,10 @@ const daeFiller = (data) => {
     }
     data.cours = courses;
 
-    console.log(data)
+    data.fait_le = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+    data.fait_a = 'Villejuif';
+    data.signatureAsso="{{signatureAsso}}";
+    data.signatureAdmin="{{signatureAdmin}}";
     doc.setData(data);
 
     try {
@@ -50,8 +63,47 @@ const daeFiller = (data) => {
         i++;
     }
     fs.writeFileSync(filledDAEPath, buf); // write the buffer to the filled document
+    console.log("filled docx")
     return path.basename(filledDAEPath);
 }
+
+const daeImageFiller = async (docxPath, outputPath, imagePath, imgTag) => {
+    // get the width and height of the image and normalize them to 100Xauto
+    
+    var width = 0
+    var height = 0
+    
+    sizeOf(imagePath).then(dimensions => {
+        width = dimensions.width;
+        height = dimensions.height;
+    });
+
+    console.log('width: ', width, 'height: ', height);
+
+    const newWidth = 100;
+    const newHeight = (newWidth * height) / width;
+
+    patchDocument(fs.readFileSync(docxPath), {
+        patches: {
+            [imgTag]: {
+                type: PatchType.PARAGRAPH,
+                children: [
+                    new ImageRun({ type: 'png', data: fs.readFileSync(imagePath), transformation: { width: newWidth, height: newHeight } }),
+                ],
+            }
+        },
+    })
+    .then((buffer) => {
+        fs.writeFileSync(outputPath, buffer);
+    })
+
+}
+
+
+
+
+
+
 
 const docxToPdf = async (docxPath) => {
     try {
@@ -64,7 +116,7 @@ const docxToPdf = async (docxPath) => {
             File: docxPath,
             FileName: fileName
         }, 'docx');
-        
+
         await result.saveFiles(`files/forms/filled`);
         // get the path were the pdf was saved
         console.log("Successfully converted file")
@@ -78,4 +130,4 @@ const docxToPdf = async (docxPath) => {
 }
 
 
-module.exports = { daeFiller, docxToPdf };
+module.exports = { daeFiller, daeImageFiller, docxToPdf }; // export the functions to be used in other files

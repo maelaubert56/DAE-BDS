@@ -7,7 +7,7 @@ const multer = require('multer');
 const path = require('path'); // Importation du module path
 const fs = require('fs');
 const nodemailer = require("nodemailer");
-const { daeFiller,docxToPdf } = require('../utilities/docUtilities');
+const { daeFiller, daeImageFiller, docxToPdf } = require('../utilities/docUtilities');
 
 const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -36,16 +36,23 @@ router.post('/', async (req, res) => {
     try {
         const { type, formData, sendTo, sendToGroup } = req.body;
         
-        const user = (await db.query('SELECT * FROM users WHERE users_email = ?', [sendTo]))[0][0];
+        const userSendTo = (await db.query('SELECT * FROM users WHERE users_email = ?', [sendTo]))[0][0];
+        
+        // fill the form with the formData
+        const docxName = await daeFiller(formData);
+        console.log("continue")
+        // convert this docx to pdf
+        const pdfPath = await docxToPdf(path.join(__dirname, `../files/forms/filled/${docxName}`));
 
-        const { insertId } = await db.query('INSERT INTO form (form_data, form_type, form_sentTo, form_sentToGroup, form_statut, form_signedBy, form_pdf) VALUES (?, ?, ?, ?, ?, ?, ?)', [JSON.stringify(formData), type,
-            sendTo, sendToGroup, 'to_review', '', '']);
-
+        // insert the form in the database
+        const { insertId } = await db.query('INSERT INTO form (form_type, form_data, form_statut, form_sentTo, form_sentToGroup, form_pdf, form_docx) VALUES (?, ?, ?, ?, ?, ?, ?)', [type, JSON.stringify(formData), 'to_review', sendTo, sendToGroup, pdfPath, docxName]);
+        
+        // send an email to the student
         var subject = `[${type} - ${formData.date.split('-').reverse().join('/')}] - REÇUE`;
         if (sendTo === "all") {
             var html = '<p>Bonjour ' + formData.prenom + ',</p><p>Votre demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' a bien été reçue par ' + sendToGroup + ', elle sera traitée dans les plus brefs délais.</p><p>Merci pour votre engagement<br>Sportivement</p>';
         } else {
-            var html = '<p>Bonjour ' + formData.prenom + ',</p><p>Votre demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' a bien été reçue par ' + user.users_username + ', elle sera traitée dans les plus brefs délais.</p><p>Merci pour votre engagement<br>Sportivement</p>';
+            var html = '<p>Bonjour ' + formData.prenom + ',</p><p>Votre demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' a bien été reçue par ' + userSendTo.users_username + ', elle sera traitée dans les plus brefs délais.</p><p>Merci pour votre engagement<br>Sportivement</p>';
         }
         var email = formData.mail;
         var mailOptions = {
@@ -62,14 +69,14 @@ router.post('/', async (req, res) => {
             }
         });
 
+        // send an email to the association member
         subject = `[${type} - ${formData.date.split('-').reverse().join('/')}] - NOUVELLE DEMANDE`;
-        
         if (sendTo === "all") {
             html = '<p>Bonjour ' + sendToGroup + ',</p><p>Vous avez reçu une nouvelle demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' de la part de ' + formData.prenom + ' ' + formData.nom + '.<br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p><p>Sportivement</p>';
             email = "marius.chevailler@efrei.net";
         } else {
-            html = '<p>Bonjour ' + user.users_username + ',</p><p>Vous avez reçu une nouvelle demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' de la part de ' + formData.prenom + ' ' + formData.nom + '.<br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p><p>Sportivement</p>';
-            email = user.users_email;
+            html = '<p>Bonjour ' + userSendTo.users_username + ',</p><p>Vous avez reçu une nouvelle demande de ' + type + ' pour le ' + formData.date.split('-').reverse().join('/') + ' de la part de ' + formData.prenom + ' ' + formData.nom + '.<br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p><p>Sportivement</p>';
+            email = userSendTo.users_email;
         }
         mailOptions = {
             from: `${process.env.EMAIL_FROM}`,
@@ -199,7 +206,22 @@ router.put('/accept/:id', authenticateToken, async (req, res) => {
     try {
 
         console.log(user);
-        await db.query('UPDATE form SET form_statut = "accepted", form_signedBy = ? WHERE form_id = ?', [user.users_email, id]);
+
+        // if users_email appartien a un groupe qui est de type 'admin'
+        
+        const group = (await db.query('SELECT * FROM users_groups WHERE users_groups_name = ?', [user.users_group_name]))[0];
+        console.log(group)
+        if (group[0].users_groups_type === 'ASSO') {
+            // daeImageFiller = (docxPath, outputPath, imagePath, imgTag)
+            await daeImageFiller(path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`), path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`), path.join(__dirname, `../files/signatures/signature_${user.users_email}.png`), 'signature');
+            await docxToPdf(path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`));
+            await db.query('UPDATE form SET form_statut = "accepted", form_signedByAsso = ? WHERE form_id = ?', [user.users_email, id]);
+        }
+        else if (group.users_groups_type === 'ADMIN') {
+            await daeImageFiller(path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`), path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`), path.join(__dirname, `../files/signatures/signature_${user.users_email}.png`), 'signature');
+            await docxToPdf(path.join(__dirname, `../files/forms/filled/${form[0].form_docx}`));
+            await db.query('UPDATE form SET form_statut = "accepted", form_signedByAdmin = ? WHERE form_id = ?', [user.users_email, id]);
+        }
 
         //get the form
         const [form] = await db.query('SELECT * FROM form WHERE form_id = ?', [id]);

@@ -14,6 +14,6 @@ yarn-debug.log*
 yarn-error.log*
 
 
-/files/forms/filled
-/files/forms/templates
-/files/signatures
+/files/forms/filled/*
+/files/forms/templates/*
+/files/signatures/*

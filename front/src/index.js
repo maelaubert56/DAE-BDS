@@ -12,6 +12,7 @@ import Admin from './pages/Admin/Admin';
 import ManageMembers from './pages/Admin/ManageMembers';
 import AddMember from './pages/Admin/AddMember';
 import EditMember from './pages/Admin/EditMember';
+import AddGroup from './pages/Admin/AddGroup';
 import Login from './pages/Login/Login';
 
 
@@ -23,6 +24,7 @@ function App(){
         <Route path='/admin/manage-members' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><ManageMembers /><Footer /></div>}/>
         <Route path='/admin/add-member' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><AddMember /><Footer /></div>}/>
         <Route path='/admin/edit-member/:id' element={<div className='vh-100 w-100 d-flex flex-column justify-content-between'><Header/><EditMember /><Footer /></div>}/>
+        <Route path='/admin/add-group' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><AddGroup /><Footer /></div>}/>
         <Route path='/login' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><Login /><Footer /></div>}/>
         <Route path='*' element={<h1>404 - Not Found</h1>} />
       </Routes>

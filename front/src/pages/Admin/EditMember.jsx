@@ -16,11 +16,12 @@ export default function EditMember() {
         username: '',
         password: '',
         users_group: '',
-        DAE_template_file: null
+        signature: null
     });
 
     const [user, setUser] = useState([]);
     const [editedUser, setEditedUser] = useState([]);
+    const [groups, setGroups] = useState([]);
 
 
     useEffect(() => {
@@ -72,9 +73,26 @@ export default function EditMember() {
                         nom: data.user.users_nom,
                         prenom: data.user.users_prenom,
                         username: data.user.users_username,
-                        users_group: data.user.users_group
+                        users_group: data.user.users_groups_name
                     }
                 );
+            })
+
+            fetch(`${process.env.REACT_APP_API_URL}/api/groups`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => {
+                if (res.status !== 200) {
+                    window.location.href = '/login';
+                }
+                return res.json();
+            }
+            ).then(data => {
+                setGroups(data.groups);
+
             })
 
         } else {
@@ -88,12 +106,13 @@ export default function EditMember() {
     const handleSubmit = (form) => {
         const formData = new FormData();
         formData.append('isAdmin', form.isAdmin);
+        formData.append('email', form.email);
         formData.append('nom', form.nom);
         formData.append('prenom', form.prenom);
         formData.append('username', form.username);
         formData.append('password', form.password);
         formData.append('users_group', form.users_group);
-        formData.append('DAE_template_file', form.DAE_template_file);
+        formData.append('signature', form.signature);
         console.log(form);
         fetch(`${process.env.REACT_APP_API_URL}/api/users/${form.email}`, {
             method: 'PUT',
@@ -145,13 +164,17 @@ export default function EditMember() {
                                 </Form.Group>
                                 <Form.Group className="mb-3 w-100" controlId="formBasicUsersGroup">
                                     <Form.Label>Groupe</Form.Label>
-                                    <Form.Control type="text" placeholder="exemple : Bureau" onChange={(e) => setForm({ ...form, users_group: e.target.value })} value={form.users_group} />
+                                    <Form.Control as="select" onChange={(e) => setForm({ ...form, users_group: e.target.value })} value={form.users_group}>
+                                        {groups.map((group, index) => {
+                                            return <option key={index}>{group.users_groups_name}</option>
+                                        })}
+                                    </Form.Control>
                                 </Form.Group>
                             </div>
                             <div className="d-flex justify-content-between align-items-center gap-0 gap-sm-3 flex-column flex-sm-row">
-                                <Form.Group className="mb-3 w-100" controlId="formBasicDAE_template_file">
-                                    <Form.Label>DAE template file</Form.Label>
-                                    <Form.Control type="file" placeholder="DAE template file" onChange={(e) => setForm({ ...form, DAE_template_file: e.target.files[0] })}/>
+                                <Form.Group className="mb-3 w-100" controlId="formBasicSignature">
+                                    <Form.Label>Signature</Form.Label>
+                                    <Form.Control type="file" placeholder="Signature" onChange={(e) => setForm({ ...form, signature: e.target.files[0] })}/>
                                 </Form.Group>
                                 <div className="w-100 d-flex justify-content-between align-items-center gap-0 gap-sm-3 flex-column flex-sm-row">
                                     <Form.Group className="d-flex align-items-center" controlId="formBasicIsAdmin">
