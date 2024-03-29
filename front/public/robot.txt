@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /admin
+Disallow: /mentions-legales
 
 Sitemap: https://docs.bds-efrei.fr/sitemap.xml
