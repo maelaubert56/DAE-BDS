@@ -14,7 +14,7 @@ import AddMember from './pages/Admin/AddMember';
 import EditMember from './pages/Admin/EditMember';
 import AddGroup from './pages/Admin/AddGroup';
 import Login from './pages/Login/Login';
-
+import MentionsLegales from './pages/MentionsLegales';
 
 function App(){
   return(
@@ -26,6 +26,7 @@ function App(){
         <Route path='/admin/edit-member/:id' element={<div className='vh-100 w-100 d-flex flex-column justify-content-between'><Header/><EditMember /><Footer /></div>}/>
         <Route path='/admin/add-group' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><AddGroup /><Footer /></div>}/>
         <Route path='/login' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><Login /><Footer /></div>}/>
+        <Route path='/mentions-legales' element={<div className='min-vh-100 w-100 d-flex flex-column justify-content-between'><Header/><MentionsLegales /><Footer /></div>}/>
         <Route path='*' element={<h1>404 - Not Found</h1>} />
       </Routes>
   );
