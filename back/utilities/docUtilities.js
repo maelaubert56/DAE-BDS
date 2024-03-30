@@ -35,8 +35,7 @@ const daeFiller = async (data) => {
 
     data.fait_le = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
     data.fait_a = 'Villejuif';
-    data.signatureAsso="{{signatureAsso}}";
-    data.signatureAdmin="{{signatureAdmin}}";
+    
     doc.setData(data);
 
     try {
@@ -52,14 +51,14 @@ const daeFiller = async (data) => {
     if (data.date.includes('/')) {
         data.date = data.date.replace(/\//g, '-');
     }
-    var filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}.docx`); // create the path of the filled document
+    var filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_to_review_${data.prenom}_${data.nom}_${data.date}.docx`); // create the path of the filled document
     console.log('DAE path: ', filledDAEPath);
 
     while (fs.existsSync(filledDAEPath)) {
         console.log('file exists')
         // if there are '/' in the data.date, replace them with '-'
 
-        filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_${data.prenom}_${data.nom}_${data.date}_${i}.docx`);
+        filledDAEPath = path.join(__dirname, `../files/forms/filled/DAE_to_review_${data.prenom}_${data.nom}_${data.date}_${i}.docx`);
         i++;
     }
     fs.writeFileSync(filledDAEPath, buf); // write the buffer to the filled document
@@ -67,23 +66,53 @@ const daeFiller = async (data) => {
     return path.basename(filledDAEPath);
 }
 
+
+const keyWordFiller = async (docxPath, keyword, dataword) => {
+    const word = new PizZip(fs.readFileSync(docxPath)); // read the content of the docx file
+    const doc = new Docxtemplater(word, {nullGetter, linebreaks: true }); // create a new instance of the docxtemplater
+    
+    const data = {
+        [keyword]: dataword
+    }
+    doc.setData(data);
+
+    try {
+        doc.render(); // render the document (replace the variables with the data)
+    }
+    catch (error) {
+        throw error;
+    }
+
+    const buf = doc.getZip().generate({ type: 'nodebuffer' }); // get the buffer of the rendered document
+
+    // save at the save location
+    fs.writeFileSync(docxPath, buf); // write the buffer to the filled document
+    console.log("filled docx")
+    return docxPath;
+}
+
+    
+
+
+
+
 const daeImageFiller = async (docxPath, outputPath, imagePath, imgTag) => {
+    console.log('docxPath: ', docxPath, 'outputPath: ', outputPath, 'imagePath: ', imagePath, 'imgTag: ', imgTag);
     // get the width and height of the image and normalize them to 100Xauto
     
     var width = 0
     var height = 0
     
-    sizeOf(imagePath).then(dimensions => {
-        width = dimensions.width;
-        height = dimensions.height;
-    });
+    
+    const dimensions = sizeOf(imagePath);
 
-    console.log('width: ', width, 'height: ', height);
+
+    console.log('width: ', dimensions.width, 'height: ', dimensions.height);
 
     const newWidth = 100;
-    const newHeight = (newWidth * height) / width;
+    const newHeight = (newWidth * dimensions.height) / dimensions.width;
 
-    patchDocument(fs.readFileSync(docxPath), {
+    await patchDocument(fs.readFileSync(docxPath), {
         patches: {
             [imgTag]: {
                 type: PatchType.PARAGRAPH,
@@ -95,8 +124,8 @@ const daeImageFiller = async (docxPath, outputPath, imagePath, imgTag) => {
     })
     .then((buffer) => {
         fs.writeFileSync(outputPath, buffer);
+        console.log('filled docx with image at :', outputPath);
     })
-
 }
 
 
@@ -130,4 +159,4 @@ const docxToPdf = async (docxPath) => {
 }
 
 
-module.exports = { daeFiller, daeImageFiller, docxToPdf }; // export the functions to be used in other files
+module.exports = { daeFiller, daeImageFiller, keyWordFiller, docxToPdf }; // export the functions to be used in other files

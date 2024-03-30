@@ -168,7 +168,6 @@ router.put('/:email', authenticateToken, upload.single('signature'), async funct
         else {
 
             // update the user in the database
-            
             await db.execute('UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_groups_name = ? WHERE users_email = ?', [isAdmin, nom, prenom, username, users_group, email]);
         }
         // send the user information to the client
@@ -199,7 +198,7 @@ router.delete('/:email', authenticateToken, async function (req, res){
         await db.execute('DELETE FROM users WHERE users_email = ?', [email]);
 
         // delete the signature file
-        const signaturePath = path.join(__dirname, `../files/signatures/signature_${email}.png`);
+        const signaturePath = path.join(__dirname, `../files/signatures/${user.users_signature}`);
         fs.unlinkSync(signaturePath);
 
         // send the user information to the client

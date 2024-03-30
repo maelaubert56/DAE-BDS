@@ -475,6 +475,7 @@ export default function Admin() {
                                             <MdEdit color='text-primary' className="border rounded p-1" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { setSelectedForm(form); handleOpenReview() }} />
                                             <FaCheck color='green' /></div>)}
                                         {(form.form_statut === "to_review") && (<Button variant='outline-primary' size='sm' onClick={() => { setSelectedForm(form); handleOpenReview() }}>Review</Button>)}
+                                        {(form.form_statut === 'waitingForAdmin' && user.users_groups_name === 'Responsables Vie Associative') && (<Button variant='outline-primary' size='sm' onClick={() => { setSelectedForm(form); handleOpenReview() }}>Review</Button>)}
                                         {(form.form_statut === 'rejected') && (<div className="d-flex gap-3 justify-content-between align-items-center">
                                             <MdEdit color='text-primary' className="border rounded p-1" style={{ cursor: 'pointer' }} size={'28px'} onClick={() => { setSelectedForm(form); handleOpenReview() }} />
                                             <FaTimes color='red' /></div>)}
