@@ -5,8 +5,9 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Badge from "react-bootstrap/Badge";
 import Spinner from "react-bootstrap/Spinner";
+import { MultiSelect } from "react-multi-select-component";
 
-import { FaCheck, FaDownload, FaTimes } from "react-icons/fa";
+import { FaCheck, FaHourglass, FaHourglassHalf, FaTimes } from "react-icons/fa";
 import { CiCircleRemove } from "react-icons/ci";
 import { FaSave } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
@@ -24,7 +25,7 @@ export default function Admin() {
   const [refuseReasonInput, setRefuseReasonInput] = useState(false);
   const [filtersStatut, setFiltersStatut] = useState("to_review");
   const [filtersType, setFiltersType] = useState("");
-  const [filtersFor, setFiltersFor] = useState("");
+  const [filtersFor, setFiltersFor] = useState([]);
   const [filterDate, setFilterDate] = useState("");
   const [searchFilter, setSearchFilter] = useState("");
   const [refuseReason, setRefuseReason] = useState("");
@@ -64,6 +65,11 @@ export default function Admin() {
         })
         .then((data) => {
           setUser(data.user);
+          setFiltersStatut(
+            data.user.users_groups_name === "Responsables Vie Associative"
+              ? "waitingForAdmin"
+              : "to_review"
+          );
         });
     } else {
       window.location.href = "/login";
@@ -79,6 +85,17 @@ export default function Admin() {
       .then((res) => res.json())
       .then((data) => {
         setUsers(data.users);
+        setFiltersFor(
+          data.users
+            .filter(
+              (user) =>
+                user.users_groups_name !== "Responsables Vie Associative"
+            )
+            .map((user) => ({
+              label: user.users_username,
+              value: user.users_email,
+            }))
+        );
       });
   }, []);
 
@@ -173,11 +190,12 @@ export default function Admin() {
   };
 
   const reloadData = () => {
+    const filtresFor = filtersFor.map((user) => user.value).join(",");
     const queryString = new URLSearchParams({
       statut: filtersStatut,
       type: filtersType,
       search: searchFilter,
-      forUser: filtersFor,
+      forUser: filtresFor,
       date: filterDate,
     }).toString();
     fetch(`${process.env.REACT_APP_API_URL}/api/form?${queryString}`, {
@@ -392,7 +410,7 @@ export default function Admin() {
 
   return (
     <>
-      <div className="d-flex justify-content-start align-items-center flex-column w-100 h-100 p-3 y-3 gap-3">
+      <div className="d-flex justify-content-start align-items-center flex-column w-100 h-100 p-3 pb-5 gap-3">
         <span className="d-flex flex-column justify-content-between align-items-center w-100 py-1 gap-0">
           <h3 className="text-center w-100 p-0 m-0">Admin Dashboard</h3>
           <span className="text-center text-secondary w-100">
@@ -417,7 +435,7 @@ export default function Admin() {
           <div
             className={`d-flex justify-content-start align-items-center flex-column border p-3 rounded ${
               showFilters ? "mb-3 d-flex" : "d-none"
-            } ${window.innerWidth > 576 ? "w-50" : "w-100"}`}
+            } ${window.innerWidth > 576 ? "w-25" : "w-100"}`}
             style={{ height: "fit-content" }}
           >
             <p className="text-center w-100 fw-semibold">Filtres</p>
@@ -429,6 +447,36 @@ export default function Admin() {
                   setSearchFilter(e.target.value);
                 }}
               />
+              {user?.users_permissions === 2 && (
+                <Form.Group
+                  className={`d-flex mb-3 w-100 ${
+                    window.innerWidth < 576
+                      ? "flex-row gap-2 align-items-center"
+                      : "flex-column"
+                  }`}
+                  controlId="for"
+                >
+                  <Form.Label>Reçu par</Form.Label>
+
+                  <MultiSelect // by default, select all users
+                    options={users
+                      .filter(
+                        (user) =>
+                          user.users_groups_name !==
+                          "Responsables Vie Associative"
+                      )
+                      .map((user) => ({
+                        label: user.users_username,
+                        value: user.users_email,
+                      }))}
+                    value={filtersFor}
+                    onChange={(e) => {
+                      setFiltersFor(e);
+                    }}
+                    labelledBy="Select"
+                  />
+                </Form.Group>
+              )}
               <Form.Group
                 className={`d-flex mb-3 w-100 ${
                   window.innerWidth < 576
@@ -444,9 +492,20 @@ export default function Admin() {
                   }}
                 >
                   <option value="">Tous</option>
-                  <option selected value="to_review">
+                  <option
+                    selected
+                    value={
+                      user.users_groups_name === "Responsables Vie Associative"
+                        ? "waitingForAdmin"
+                        : "to_review"
+                    }
+                  >
                     A review
                   </option>
+                  {user.users_groups_name !==
+                    "Responsables Vie Associative" && (
+                    <option value="waitingForAdmin">En attente</option>
+                  )}
                   <option value="accepted">Accepté</option>
                   <option value="rejected">Rejeté</option>
                 </Form.Select>
@@ -496,36 +555,7 @@ export default function Admin() {
                   <option value="DAE">DAE</option>
                 </Form.Select>
               </Form.Group>
-              {user?.users_permissions === 2 && (
-                <Form.Group
-                  className={`d-flex mb-3 w-100 ${
-                    window.innerWidth < 576
-                      ? "flex-row gap-2 align-items-center"
-                      : "flex-column"
-                  }`}
-                  controlId="for"
-                >
-                  <Form.Label>Reçu par</Form.Label>
-                  <Form.Select
-                    onChange={(e) => {
-                      setFiltersFor(e.target.value);
-                    }}
-                  >
-                    <option value="">Tous</option>
-                    {users
-                      .filter(
-                        (user) =>
-                          user.users_groups_name !==
-                          "Responsables Vie Associative"
-                      )
-                      .map((user, index) => (
-                        <option key={index} value={user.users_email}>
-                          {user.users_username}
-                        </option>
-                      ))}
-                  </Form.Select>
-                </Form.Group>
-              )}
+
               {checkedForms.length > 0 && (
                 <Form.Group
                   className={`d-flex mb-3 gap-3 w-100 flex-column align-items-center`}
@@ -628,11 +658,12 @@ export default function Admin() {
                           }}
                         />
                         <Badge bg="secondary">DAE</Badge>
-                        <span>
-                          {form.form_data.prenom} {form.form_data.nom}
-                        </span>
-                        <span className="text-muted">
-                          <small>
+
+                        <span className="d-flex flex-column">
+                          <span>
+                            {form.form_data.prenom} {form.form_data.nom}
+                          </span>
+                          <small className="text-muted">
                             {form.form_data.date.split("-").reverse().join("/")}
                           </small>
                         </span>
@@ -667,10 +698,91 @@ export default function Admin() {
                 >
                   <span className="text-muted d-flex flex-row">
                     <small>
-                      {user.users_permissions >= 1 &&
-                        `reçu par ${form.form_sentTo}`}
+                      <span className="d-flex flex-column mx-3">
+                        {form.form_statut === "to_review" && (
+                          <span className="text-secondary">
+                            En attente de{" "}
+                            {
+                              users.find(
+                                (user) => user.users_email === form.form_sentTo
+                              )?.users_username
+                            }
+                          </span>
+                        )}
+                        {form.form_statut === "waitingForAdmin" && (
+                          <>
+                            <span className="text-success">
+                              Accepté par{" "}
+                              {
+                                users.find(
+                                  (user) =>
+                                    user.users_email === form.form_signedByAsso
+                                )?.users_username
+                              }
+                            </span>
+                            <span className="text-secondary">
+                              En attente de l'admin
+                            </span>
+                          </>
+                        )}
+                        {form.form_statut === "accepted" && (
+                          <>
+                            <span className="text-success">
+                              Accepté par{" "}
+                              {
+                                users.find(
+                                  (user) =>
+                                    user.users_email === form.form_signedByAsso
+                                )?.users_username
+                              }
+                            </span>
+                            <span className="text-success">
+                              Accepté par{" "}
+                              {
+                                users.find(
+                                  (user) =>
+                                    user.users_email === form.form_signedByAdmin
+                                )?.users_username
+                              }
+                            </span>
+                          </>
+                        )}
+                        {form.form_statut === "rejected" && (
+                          <>
+                            {form.form_signedByAsso ? (
+                              <>
+                                <span className="text-success">
+                                  Accepté par{" "}
+                                  {
+                                    users.find(
+                                      (user) =>
+                                        user.users_email ===
+                                        form.form_signedByAsso
+                                    )?.users_username
+                                  }
+                                </span>
+                                <span className="text-danger">
+                                  Rejeté par l'admin : {form.form_reject_reason}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-danger">
+                                Rejeté par{" "}
+                                {
+                                  users.find(
+                                    (user) =>
+                                      user.users_email === form.form_sentTo
+                                  )?.users_username
+                                }{" "}
+                                : {form.form_reject_reason}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </span>
                     </small>
                   </span>
+
                   {form.form_statut === "accepted" && (
                     <div className="d-flex gap-3 h-100 justify-content-between align-items-center">
                       <div className="h-75 border border-right-1" />
@@ -733,8 +845,8 @@ export default function Admin() {
                     </Button>
                   )}
                   {form.form_statut === "waitingForAdmin" &&
-                    user.users_groups_name ===
-                      "Responsables Vie Associative" && (
+                    (user.users_groups_name ===
+                    "Responsables Vie Associative" ? (
                       <Button
                         variant="outline-primary"
                         size="sm"
@@ -745,7 +857,9 @@ export default function Admin() {
                       >
                         Review
                       </Button>
-                    )}
+                    ) : (
+                      <FaHourglassHalf />
+                    ))}
                   {form.form_statut === "rejected" && (
                     <div className="d-flex gap-3 justify-content-between align-items-center">
                       <MdEdit

@@ -171,6 +171,7 @@ router.get("/", authenticateToken, async (req, res) => {
     if (!statut) statut = "%";
     if (!type) type = "%";
     if (!forUser) forUser = "%";
+    else forUser = forUser.split(",").join("|");
 
     console.log(
       "search:" +
@@ -198,10 +199,10 @@ router.get("/", authenticateToken, async (req, res) => {
       permissions[0].users_permissions === 2
     ) {
       [rows] = await db.query(
-        "SELECT * FROM form WHERE form_statut LIKE ? AND form_type LIKE ? AND form_sentTo LIKE ? AND form_data LIKE ? ORDER BY form_id DESC",
+        "SELECT * FROM form WHERE form_statut LIKE ? AND form_type LIKE ? AND form_sentTo RLIKE ? AND form_data LIKE ? ORDER BY form_id DESC",
         [statut, type, forUser, `%${search}%`]
       );
-      const query = `SELECT * FROM form WHERE form_statut LIKE ${statut} AND form_type LIKE ${type} AND form_data LIKE ${search} ORDER BY form_id DESC`;
+      const query = `SELECT * FROM form WHERE form_statut LIKE ${statut} AND form_type LIKE ${type} AND form_sentTo LIKE ${forUser} AND form_data LIKE ${search} ORDER BY form_id DESC`;
       console.log(query);
       [nb] = await db.query(
         "SELECT COUNT(*) FROM form WHERE form_sentTo LIKE ?",
@@ -210,9 +211,10 @@ router.get("/", authenticateToken, async (req, res) => {
       console.log(nb[0]["COUNT(*)"]);
     } else {
       if (user.users_groups_name === "Responsables Vie Associative") {
+        console.log(statut);
         [rows] = await db.query(
-          "SELECT * FROM form WHERE form_statut = 'waitingForAdmin' AND form_type LIKE ? AND form_sentTo LIKE ? AND form_data LIKE ? ORDER BY form_id DESC",
-          [type, forUser, `%${search}%`]
+          "SELECT * FROM form WHERE form_statut LIKE ? AND form_signedByAsso IS NOT NULL AND form_data LIKE ? AND form_type LIKE ? ORDER BY form_id DESC",
+          [statut, `%${search}%`, type]
         );
       } else {
         [rows] = await db.query(
@@ -753,10 +755,62 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
       }
     });
 
-    await db.query(
-      'UPDATE form SET form_statut = "rejected" WHERE form_id = ?',
-      [id]
+    // if the form was already signed by the association, send a mail to the association member
+    console.log("form: ", form[0]);
+    console.log(
+      "signed by asso: ",
+      form[0].form_signedByAsso,
+      "is null: ",
+      form[0].form_signedByAsso === null
     );
+    if (form[0].form_signedByAsso !== null) {
+      const [asso] = await db.query(
+        "SELECT * FROM users WHERE users_email = ?",
+        [form[0].form_signedByAsso]
+      );
+      const subject = `[${form[0].form_type} - ${formData.date
+        .split("-")
+        .reverse()
+        .join("/")}] - REFUSÉE`;
+      const html =
+        "<p>Bonjour " +
+        asso[0].users_username +
+        ",</p><p>La demande de " +
+        form[0].form_type +
+        " du " +
+        formData.date.split("-").reverse().join("/") +
+        "demandée par" +
+        formData.prenom +
+        " " +
+        formData.nom +
+        "a été refusée par " +
+        req.user.users_username +
+        " pour la raison suivante : " +
+        reason +
+        ".<br>Merci de bien vouloir vous connecter au <a href='https://docs.bds-efrei.fr/admin'>site du BDS</a> pour plus d'informations.</p><p>Sportivement</p>";
+      const mailOptions = {
+        from: `${process.env.EMAIL_FROM}`,
+        to: asso[0].users_email,
+        subject: subject,
+        html: html,
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+      await db.query(
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
+        [reason, id]
+      );
+    } else {
+      await db.query(
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?,form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
+        [reason, id]
+      );
+    }
 
     res.status(200).json({ message: "Form rejected" });
   } catch (error) {
