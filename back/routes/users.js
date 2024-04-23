@@ -80,6 +80,7 @@ router.get("/me", authenticateToken, async (req, res) => {
   }
 });
 
+// GET /api/users/:id
 router.get("/:id", authenticateToken, async (req, res) => {
   console.log("route : GET api/users/:id");
   try {
@@ -102,8 +103,13 @@ router.get("/:id", authenticateToken, async (req, res) => {
     );
     const user = rows[0];
 
+    const isDefaultPassword = await bcrypt.compare(
+      "default",
+      user.users_password
+    );
+
     // send the user information to the client
-    res.status(200).json({ user });
+    res.status(200).json({ user, isDefaultPassword });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
@@ -190,6 +196,7 @@ router.post(
   }
 );
 
+// PUT /api/users/:email
 router.put(
   "/:email",
   authenticateToken,
@@ -228,6 +235,7 @@ router.put(
   }
 );
 
+// DELETE /api/users/:email
 router.delete("/:email", authenticateToken, async function (req, res) {
   console.log("route : DELETE api/users");
   try {

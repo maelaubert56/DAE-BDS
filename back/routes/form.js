@@ -715,7 +715,7 @@ router.put("/wait/:id", authenticateToken, async (req, res) => {
         )
       );
       await db.query(
-        'UPDATE form SET form_statut = "to_review", form_signedByAdmin = NULL, form_signed_admin = NULL WHERE form_id = ?',
+        'UPDATE form SET form_statut = "waitingForAdmin", form_signedByAdmin = NULL, form_signed_admin = NULL WHERE form_id = ?',
         [id]
       );
     }

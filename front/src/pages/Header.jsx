@@ -59,7 +59,7 @@ export default function Header() {
                 <NavDropdown.Item href="/admin">Dashboard</NavDropdown.Item>
                 {user.users_permissions === 2 && (
                   <NavDropdown.Item href="/admin/manage-members">
-                    Manage Members
+                    Manager les membres
                   </NavDropdown.Item>
                 )}
                 <NavDropdown.Divider />
@@ -69,7 +69,7 @@ export default function Header() {
                     window.location.href = "/login";
                   }}
                 >
-                  Log out
+                  Deconnexion
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (

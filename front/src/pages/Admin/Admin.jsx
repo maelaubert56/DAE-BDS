@@ -7,7 +7,7 @@ import Badge from "react-bootstrap/Badge";
 import Spinner from "react-bootstrap/Spinner";
 import { MultiSelect } from "react-multi-select-component";
 
-import { FaCheck, FaHourglass, FaHourglassHalf, FaTimes } from "react-icons/fa";
+import { FaCheck, FaHourglassHalf, FaTimes } from "react-icons/fa";
 import { CiCircleRemove } from "react-icons/ci";
 import { FaSave } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
