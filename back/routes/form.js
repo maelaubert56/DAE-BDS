@@ -48,10 +48,13 @@ router.post("/", async (req, res) => {
       await db.query("SELECT * FROM users WHERE users_email = ?", [sendTo])
     )[0][0];
 
+    console.log("data: ", formData);
+
     // fill the form with the formData
     const docxName = await daeFiller(formData);
 
     // insert the form in the database
+    console.log("data: ", formData);
     const { insertId } = await db.query(
       "INSERT INTO form (form_type, form_data, form_statut, form_sentTo, form_sentToGroup, form_to_review) VALUES (?, ?, ?, ?, ?, ?)",
       [
@@ -204,10 +207,7 @@ router.get("/", authenticateToken, async (req, res) => {
       );
       const query = `SELECT * FROM form WHERE form_statut LIKE ${statut} AND form_type LIKE ${type} AND form_sentTo LIKE ${forUser} AND form_data LIKE ${search} ORDER BY form_id DESC`;
       console.log(query);
-      [nb] = await db.query(
-        "SELECT COUNT(*) FROM form WHERE form_sentTo LIKE ?",
-        [forUser]
-      );
+      [nb] = await db.query("SELECT COUNT(*) FROM form");
       console.log(nb[0]["COUNT(*)"]);
     } else {
       if (user.users_groups_name === "Responsables Vie Associative") {
@@ -216,17 +216,21 @@ router.get("/", authenticateToken, async (req, res) => {
           "SELECT * FROM form WHERE form_statut LIKE ? AND form_signedByAsso IS NOT NULL AND form_data LIKE ? AND form_type LIKE ? ORDER BY form_id DESC",
           [statut, `%${search}%`, type]
         );
+        [nb] = await db.query(
+          "SELECT COUNT(*) FROM form WHERE form_signedByAsso IS NOT NULL"
+        );
       } else {
+        forUser = user.users_email;
         [rows] = await db.query(
           "SELECT * FROM form WHERE form_statut LIKE ? AND form_type LIKE ? AND form_sentTo LIKE ? AND form_data LIKE ? ORDER BY form_id DESC",
           [statut, type, forUser, `%${search}%`]
         );
+        [nb] = await db.query(
+          "SELECT COUNT(*) FROM form WHERE form_sentTo LIKE ?",
+          [forUser]
+        );
       }
 
-      [nb] = await db.query(
-        "SELECT COUNT(*) FROM form WHERE form_sentTo LIKE ?",
-        [user.users_email]
-      );
       console.log(nb[0]["COUNT(*)"]);
     }
 
@@ -247,6 +251,7 @@ router.get("/", authenticateToken, async (req, res) => {
 router.get("/download/:id", authenticateToken, async (req, res) => {
   console.log("GET /api/form/download/:id");
   const { id } = req.params;
+  var filePath;
   try {
     const [form] = await db.query("SELECT * FROM form WHERE form_id = ?", [id]);
     if (form.length === 0) {
@@ -254,12 +259,12 @@ router.get("/download/:id", authenticateToken, async (req, res) => {
       return;
     }
     if (form[0].form_statut !== "waitingForAdmin") {
-      const filePath = path.join(
+      filePath = path.join(
         __dirname,
         `../files/forms/filled/${form[0].form_signed_asso}`
       );
     } else if (form[0].form_statut === "accepted") {
-      const filePath = path.join(
+      filePath = path.join(
         __dirname,
         `../files/forms/filled/${form[0].form_signed_admin}`
       );
@@ -299,10 +304,11 @@ router.get("/download/:id/pdf", authenticateToken, async (req, res) => {
       res.status(404).json({ error: "Form not signed" });
       return;
     }
-    filePath = filePath.split(".")[0].concat(".pdf");
+    filePath = filePath.replace(".docx", ".pdf"); // replace the extension ".docx" by ".pdf
+
     //check if this path already exists
     if (!fs.existsSync(filePath)) {
-      filePath = await docxToPdf(filePath.split(".")[0].concat(".docx"));
+      filePath = await docxToPdf(filePath.replace(".pdf", ".docx"));
     }
     console.log(filePath);
     res.download(filePath); // in the front end, the file will be downloaded
@@ -320,6 +326,8 @@ router.put("/:id", authenticateToken, async (req, res) => {
   try {
     // get the form
     var [form] = await db.query("SELECT * FROM form WHERE form_id = ?", [id]);
+    console.log("form: ", form[0]);
+    console.log("Data: ", form_data);
     // update the form_data
     await db.query("UPDATE form SET form_data = ? WHERE form_id = ?", [
       JSON.stringify(form_data),
@@ -688,10 +696,59 @@ router.put("/wait/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
   const user = req.user;
   try {
-    await db.query(
-      'UPDATE form SET form_statut = "to_review" WHERE form_id = ?',
-      [id]
-    );
+    // if the user is admin, then delete his signature if he has signed the form
+    const [form] = await db.query("SELECT * FROM form WHERE form_id = ?", [id]);
+    if (form[0].form_signedByAdmin === user.users_email) {
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin}`
+        )
+      );
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin.replace(
+            ".docx",
+            ".pdf"
+          )}`
+        )
+      );
+      await db.query(
+        'UPDATE form SET form_statut = "to_review", form_signedByAdmin = NULL, form_signed_admin = NULL WHERE form_id = ?',
+        [id]
+      );
+    }
+    // if the user is asso, then delete his signature if he has signed the form and delete also the signature of the admin
+    if (form[0].form_signedByAsso === user.users_email) {
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_asso}`
+        )
+      );
+      if (form[0].form_signed_admin) {
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            `../files/forms/filled/${form[0].form_signed_admin}`
+          )
+        );
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            `../files/forms/filled/${form[0].form_signed_admin.replace(
+              ".docx",
+              ".pdf"
+            )}`
+          )
+        );
+      }
+      await db.query(
+        'UPDATE form SET form_statut = "to_review", form_signedByAsso = NULL, form_signed_asso = NULL, form_signedByAdmin = NULL, form_signed_admin = NULL WHERE form_id = ?',
+        [id]
+      );
+    }
     res.status(200).json({ message: "Form put on hold" });
   } catch (error) {
     console.log(error);
@@ -703,6 +760,36 @@ router.delete("/delete/:id", authenticateToken, async (req, res) => {
   console.log("DELETE /api/form/delete/:id");
   const { id } = req.params;
   try {
+    // delete the files
+    const [form] = await db.query("SELECT * FROM form WHERE form_id = ?", [id]);
+    fs.unlinkSync(
+      path.join(__dirname, `../files/forms/filled/${form[0].form_to_review}`)
+    );
+    if (form[0].form_signed_asso) {
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_asso}`
+        )
+      );
+    }
+    if (form[0].form_signed_admin) {
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin}`
+        )
+      );
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin.replace(
+            ".docx",
+            ".pdf"
+          )}`
+        )
+      );
+    }
     await db.query("DELETE FROM form WHERE form_id = ?", [id]);
     res.status(200).json({ message: "Form deleted" });
   } catch (error) {
@@ -805,11 +892,53 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
         'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
         [reason, id]
       );
+      // delete the signedByAdmin file
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin}`
+        )
+      );
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          `../files/forms/filled/${form[0].form_signed_admin.replace(
+            ".docx",
+            ".pdf"
+          )}`
+        )
+      );
     } else {
       await db.query(
         'UPDATE form SET form_statut = "rejected", form_reject_reason = ?,form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
         [reason, id]
       );
+      // delete the signedByAdmin file and the signedByAsso file
+      if (form[0].form_signed_admin) {
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            `../files/forms/filled/${form[0].form_signed_admin}`
+          )
+        );
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            `../files/forms/filled/${form[0].form_signed_admin.replace(
+              ".docx",
+              ".pdf"
+            )}`
+          )
+        );
+      }
+      if (form[0].form_signed_asso) {
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            `../files/forms/filled/${form[0].form_signed_asso}`
+          )
+        );
+      }
     }
 
     res.status(200).json({ message: "Form rejected" });

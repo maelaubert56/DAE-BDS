@@ -19,7 +19,8 @@ function nullGetter(part) {
   return "";
 }
 
-const daeFiller = async (data) => {
+const daeFiller = async (formdata) => {
+  const data = Object.assign({}, formdata); // create a copy of the form data
   const daeTemplatePath = path.join(
     __dirname,
     `../files/forms/templates/DAE_template.docx`
