@@ -8,10 +8,10 @@ export default function EditMember() {
   const handleCloseModal = () => setDeleteModal(false);
   const handleShowModal = () => setDeleteModal(true);
 
-  const [isDefaultPassword, setIsDefaultPassword] = useState(false);
   const [form, setForm] = useState({
     email: "",
     isAdmin: 0,
+    hide: 0,
     nom: "",
     prenom: "",
     username: "",
@@ -19,7 +19,6 @@ export default function EditMember() {
     users_group: "",
     signature: null,
   });
-  const [signature_image, setSignature_image] = useState(null);
 
   const [user, setUser] = useState([]);
   const [editedUser, setEditedUser] = useState([]);
@@ -79,12 +78,12 @@ export default function EditMember() {
               data.user.users_permissions.toString() === "1"
                 ? 1
                 : 0,
+            hide: data.user.users_hide,
             nom: data.user.users_nom,
             prenom: data.user.users_prenom,
             username: data.user.users_username,
             users_group: data.user.users_groups_name,
           });
-          setIsDefaultPassword(data.isDefaultPassword);
         });
 
       fetch(`${process.env.REACT_APP_API_URL}/api/groups`, {
@@ -112,6 +111,7 @@ export default function EditMember() {
   const handleSubmit = (form) => {
     const formData = new FormData();
     formData.append("isAdmin", form.isAdmin);
+    formData.append("hide", form.hide);
     formData.append("email", form.email);
     formData.append("nom", form.nom);
     formData.append("prenom", form.prenom);
@@ -194,15 +194,7 @@ export default function EditMember() {
                   className="mb-3 w-100"
                   controlId="formBasicPassword"
                 >
-                  <Form.Label>
-                    Password
-                    {isDefaultPassword && (
-                      <span className="text-danger">
-                        {" "}
-                        (Mot de passe par défaut)
-                      </span>
-                    )}
-                  </Form.Label>
+                  <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
                     placeholder="Password"
@@ -250,14 +242,26 @@ export default function EditMember() {
                     className="d-flex align-items-center"
                     controlId="formBasicIsAdmin"
                   >
-                    <Form.Check
-                      type="switch"
-                      label="Administrateur"
-                      onChange={(e) =>
-                        setForm({ ...form, isAdmin: e.target.checked })
-                      }
-                      checked={form.isAdmin}
-                    />
+                    <div className="d-flex align-items-start flex-column">
+                      {editedUser.users_permissions !== 2 && (
+                        <Form.Check
+                          type="switch"
+                          label="Administrateur"
+                          onChange={(e) =>
+                            setForm({ ...form, isAdmin: e.target.checked })
+                          }
+                          checked={form.isAdmin}
+                        />
+                      )}
+                      <Form.Check
+                        type="switch"
+                        label="Hide"
+                        onChange={(e) =>
+                          setForm({ ...form, hide: e.target.checked })
+                        }
+                        checked={form.hide}
+                      />
+                    </div>
                   </Form.Group>
                   {editedUser.users_permissions !== 2 &&
                     editedUser.users_email !== user.users_email && (

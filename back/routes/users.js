@@ -103,13 +103,8 @@ router.get("/:id", authenticateToken, async (req, res) => {
     );
     const user = rows[0];
 
-    const isDefaultPassword = await bcrypt.compare(
-      "default",
-      user.users_password
-    );
-
     // send the user information to the client
-    res.status(200).json({ user, isDefaultPassword });
+    res.status(200).json({ user });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
@@ -122,7 +117,7 @@ router.get("/", async (req, res) => {
   try {
     console.log("route : GET api/users");
     const [rows] = await db.execute(
-      "SELECT users_email, users_username, users_groups_name FROM users ORDER BY users_email DESC"
+      "SELECT users_email, users_username, users_groups_name, users_permissions, users_hide FROM users ORDER BY users_email DESC"
     );
     const users = rows;
 
@@ -134,7 +129,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/users (auth middleware and saveFile middleware)
+// POST /api/users
 router.post(
   "/",
   authenticateToken,
@@ -142,8 +137,16 @@ router.post(
   async function (req, res) {
     console.log("route : POST api/users");
     try {
-      const { email, isAdmin, nom, prenom, username, password, users_group } =
-        req.body;
+      var {
+        email,
+        isAdmin,
+        hide,
+        nom,
+        prenom,
+        username,
+        password,
+        users_group,
+      } = req.body;
 
       if (!req.file) {
         return res.status(400).send("Aucune image n'a été envoyée.");
@@ -172,12 +175,20 @@ router.post(
       // hash the password
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+      // if hide == true, hide = 1, else hide = 0
+      if (hide == "true") {
+        hide = 1;
+      } else {
+        hide = 0;
+      }
+
       // insert the user into the database
       await db.execute(
-        "INSERT INTO users (users_email, users_permissions, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (users_email, users_permissions, users_hide, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           email,
           isAdmin,
+          hide,
           nom,
           prenom,
           username,
@@ -202,28 +213,59 @@ router.put(
   authenticateToken,
   upload.single("signature"),
   async function (req, res) {
-    console.log("route : PUT api/users");
     try {
-      var { isAdmin, nom, prenom, username, password, users_group } = req.body;
+      // check if the user is admin (users_permissions == 2)
+      if (req.user.users_permissions != 2) {
+        return res
+          .status(403)
+          .json({ message: "Forbidden: Invalid permissions" });
+      }
+
+      var { isAdmin, nom, prenom, username, password, users_group, hide } =
+        req.body;
       const email = req.params.email;
 
+      // fetch the user with the email
+      const [rows] = await db.execute(
+        "SELECT * FROM users WHERE users_email = ?",
+        [email]
+      );
+
       //check if the user has the permission 2
-      if (req.user.users_permissions === 2) {
+      if (rows[0].users_permissions === 2) {
         isAdmin = 2;
+      }
+
+      console.log("isAdmin : " + isAdmin);
+      console.log("hide : " + hide);
+      // if hide == true, hide = 1, else hide = 0
+      if (hide == "true") {
+        hide = 1;
+      } else {
+        hide = 0;
       }
 
       // hash the password if it is not empty
       if (password) {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         await db.execute(
-          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_groups_name = ? WHERE users_email = ?",
-          [isAdmin, nom, prenom, username, hashedPassword, users_group, email]
+          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_groups_name = ?, users_hide = ? WHERE users_email = ?",
+          [
+            isAdmin,
+            nom,
+            prenom,
+            username,
+            hashedPassword,
+            users_group,
+            hide,
+            email,
+          ]
         );
       } else {
         // update the user in the database
         await db.execute(
-          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_groups_name = ? WHERE users_email = ?",
-          [isAdmin, nom, prenom, username, users_group, email]
+          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_groups_name = ?, users_hide = ? WHERE users_email = ?",
+          [isAdmin, nom, prenom, username, users_group, hide, email]
         );
       }
       // send the user information to the client
@@ -234,6 +276,75 @@ router.put(
     }
   }
 );
+
+// PUT /api/users/update/changepassword
+router.put(
+  "/update/changepassword",
+  authenticateToken,
+  async function (req, res) {
+    console.log("route : PUT api/users/update/changepassword");
+    try {
+      var { oldPassword, newPassword } = req.body;
+
+      // fetch the user with the email
+      const [rows] = await db.execute(
+        "SELECT * FROM users WHERE users_email = ?",
+        [req.user.users_email]
+      );
+      const user = rows[0];
+
+      // check if password is correct
+      const isPasswordCorrect = await bcrypt.compare(
+        oldPassword,
+        user.users_password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+
+      // hash the password
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      // update the user in the database
+      await db.execute(
+        "UPDATE users SET users_password = ? WHERE users_email = ?",
+        [hashedPassword, req.user.users_email]
+      );
+
+      // send the user information to the client
+      res.status(200).json({ message: "Password updated" });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+// PUT /api/users/update/sendmail
+router.put("/update/sendmail", authenticateToken, async function (req, res) {
+  console.log("route : PUT api/users/update/sendmail");
+  try {
+    // fetch the user with the email
+    const [rows] = await db.execute(
+      "SELECT * FROM users WHERE users_email = ?",
+      [req.user.users_email]
+    );
+    const user = rows[0];
+
+    // update the user in the database
+    await db.execute(
+      "UPDATE users SET users_send_mail = ? WHERE users_email = ?",
+      [!user.users_send_mail, req.user.users_email]
+    );
+
+    // send the user information to the client
+    res.status(200).json({ message: "Send mail updated" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // DELETE /api/users/:email
 router.delete("/:email", authenticateToken, async function (req, res) {

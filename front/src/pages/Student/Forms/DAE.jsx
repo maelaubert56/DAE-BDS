@@ -37,7 +37,8 @@ export default function FormDAE() {
     })
       .then((res) => res.json())
       .then((data) => {
-        setAdminList(data.users);
+        // remove thoses who has user_hide == 1
+        setAdminList(data.users.filter((user) => user.users_hide == 0));
         console.log(data);
       });
 
@@ -330,7 +331,7 @@ export default function FormDAE() {
                       <option defaultValue selected disabled value="">
                         Choisissez un destinataire
                       </option>
-                      <option value="all">Tous</option>
+                      {/*<option value="all">Tous</option>*/}
                       {adminList.length > 0 &&
                         adminList.map(
                           (admin, index) =>

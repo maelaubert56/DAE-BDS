@@ -2,6 +2,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
+import Form from "react-bootstrap/Form";
 
 import React, { useEffect, useState } from "react";
 
@@ -31,6 +32,38 @@ export default function Header() {
     }
   }, []);
 
+  const handleChangeSendMail = () => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/users/update/sendmail`, {
+      method: "PUT",
+      headers: {
+        Authorization: `${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+    }).then((res) => {
+      if (res.status !== 200) {
+        alert("Erreur lors de la mise à jour de la préférence");
+      } else {
+        fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+          method: "GET",
+          headers: {
+            Authorization: `${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (res.status !== 200) {
+              setIsLogged(false);
+            }
+            return res.json();
+          })
+          .then((data) => {
+            setIsLogged(true);
+            setUser(data.user);
+          });
+      }
+    });
+  };
+
   return (
     <Navbar
       expand="lg"
@@ -55,7 +88,11 @@ export default function Header() {
               </NavDropdown>
             </div>
             {isLogged ? (
-              <NavDropdown title={user.users_username} id="basic-nav-dropdown">
+              <NavDropdown
+                title={user.users_username}
+                id="basic-nav-dropdown"
+                autoClose="outside"
+              >
                 <NavDropdown.Item href="/admin">Dashboard</NavDropdown.Item>
                 {user.users_permissions === 2 && (
                   <NavDropdown.Item href="/admin/manage-members">
@@ -63,6 +100,20 @@ export default function Header() {
                   </NavDropdown.Item>
                 )}
                 <NavDropdown.Divider />
+                <NavDropdown.Item href="/admin/edit-password">
+                  Changer de mot de passe
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={handleChangeSendMail}>
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Recevoir les mails"
+                    checked={user.users_send_mail}
+                    onChange={() => {
+                      handleChangeSendMail();
+                    }}
+                  />
+                </NavDropdown.Item>
                 <NavDropdown.Item
                   onClick={() => {
                     localStorage.removeItem("token");
