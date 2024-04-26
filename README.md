@@ -1,4 +1,4 @@
-# EasyDAE v1.0.0
+# EasyDAE v1.1.0
 
 EasyDAE est une solution de gestion et d'automatisation des Demandes d'Absence Excusée.
 
