@@ -74,188 +74,106 @@ router.post("/", async (req, res) => {
       .join("/")}] - REÇUE`;
     if (sendTo === "all") {
       var html =
-        `<header> <title>DAE Reçue</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Roboto');
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            h1 {
-                margin:10px 0;
-                padding:0;
-                
-                font-size: 36px;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .container {
-                width: 50%;
-                margin: 0 auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
-                .container {
-                    width: 80%;
-                }
-            }
-
-            .banniere {
-                width: 100%;
-                margin-top:0px;
-                border-radius: 10px;
-            }
-
-            .signature {
-                margin-top: 20px;
-                font-size: 14px;
-                text-align: center;
-            }
-
-            a {
-                color: #000;
-            }
-          </style>
-        </header>
-
-
-        <body>
-          <div class="container">
-              <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80px" alt="confirmed">
-              <h1>DAE Reçue</h1>
-              <div>
-                  <p>Bonjour ` +
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>DAE Reçue</title>
+        </head>
+        <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                            <tr>
+                                <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                    <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                    <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Reçue</h1>
+                                    <div>
+                                        <p>Bonjour ` +
         formData.prenom +
         `,</p>
-                  <p>Votre demande de ` +
+                                        <p>Votre demande de ` +
         type +
         ` pour le ` +
         formData.date.split("-").reverse().join("/") +
         ` a bien été reçue par ` +
         sendToGroup +
-        `.</br>Elle sera traitée dans les plus brefs délais.</p>
-                  <p>Merci pour votre engagement,</p>
-                  <p>Sportivement</p>
-                  <p class="signature">
-                      <b>BDS Efrei Paris</b><br>
-                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                      30-32 avenue de la République 94800 Villejuif
-                  </p>
-              </div>
-              <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-          </div>
-        </body>`;
+        `.</p>
+                                        <p>Elle sera traitée dans les plus brefs délais.</p>
+                                        <p>Merci pour votre engagement,</p>
+                                        <p>Sportivement</p>
+                                        <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                            <b>BDS Efrei Paris</b><br>
+                                            <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                            30-32 avenue de la République 94800 Villejuif
+                                        </p>
+                                    </div>
+                                    <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        
+
+
+`;
     } else {
       var html =
-        `<header> <title>DAE Reçue</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Roboto');
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            h1 {
-                margin:10px 0;
-                padding:0;
-                
-                font-size: 36px;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .container {
-                width: 50%;
-                margin: 0 auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
-                .container {
-                    width: 80%;
-                }
-            }
-
-            .banniere {
-                width: 100%;
-                margin-top:0px;
-                border-radius: 10px;
-            }
-
-            .signature {
-                margin-top: 20px;
-                font-size: 14px;
-                text-align: center;
-            }
-
-            a {
-                color: #000;
-            }
-          </style>
-        </header>
-
-
-        <body>
-          <div class="container">
-              <img src="https://docs.bds-efrei.fr/icon/time.gif" width="80px" alt="confirmed">
-              <h1>DAE Reçue</h1>
-              <div>
-                  <p>Bonjour ` +
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>DAE Reçue</title>
+        </head>
+        <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                            <tr>
+                                <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                    <img src="https://docs.bds-efrei.fr/icon/time.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                    <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Reçue</h1>
+                                    <div>
+                                        <p>Bonjour ` +
         formData.prenom +
         `,</p>
-                  <p>Votre demande de ` +
+                                        <p>Votre demande de ` +
         type +
         ` pour le ` +
         formData.date.split("-").reverse().join("/") +
         ` a bien été reçue par ` +
         userSendTo.users_username +
-        `.</br>Elle sera traitée dans les plus brefs délais.</p>
-                  <p>Merci pour votre engagement,</p>
-                  <p>Sportivement</p>
-                  <p class="signature">
-                      <b>BDS Efrei Paris</b><br>
-                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                      30-32 avenue de la République 94800 Villejuif
-                  </p>
-              </div>
-              <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-          </div>
-        </body>`;
+        `.</p>
+                                        <p>Elle sera traitée dans les plus brefs délais.</p>
+                                        <p>Merci pour votre engagement,</p>
+                                        <p>Sportivement</p>
+                                        <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                            <b>BDS Efrei Paris</b><br>
+                                            <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                            30-32 avenue de la République 94800 Villejuif
+                                        </p>
+                                    </div>
+                                    <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        
+
+
+`;
     }
     var email = formData.mail;
     var mailOptions = {
@@ -279,79 +197,27 @@ router.post("/", async (req, res) => {
         .join("/")}] - NOUVELLE DEMANDE`;
       if (sendTo === "all") {
         var html =
-          `<header> <title>DAE Reçue</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Roboto');
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            h1 {
-                margin:10px 0;
-                padding:0;
-                
-                font-size: 36px;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .container {
-                width: 50%;
-                margin: 0 auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
-                .container {
-                    width: 80%;
-                }
-            }
-
-            .banniere {
-                width: 100%;
-                margin-top:0px;
-                border-radius: 10px;
-            }
-
-            .signature {
-                margin-top: 20px;
-                font-size: 14px;
-                text-align: center;
-            }
-
-            a {
-                color: #000;
-            }
-          </style>
-        </header>
-
-
-        <body>
-          <div class="container">
-          <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80px" alt="confirmed">
-          <h1>Nouvelle demande</h1>
-              <div>
-                  <p>Bonjour ` +
+          `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Nouvelle Demande</title>
+          </head>
+          <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                      <td align="center">
+                          <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                              <tr>
+                                  <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                      <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                      <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">Nouvelle demande</h1>
+                                      <div>
+                                          <p>Bonjour ` +
           sendToGroup +
           `,</p>
-                  <p>Vous avez reçu une nouvelle demande de ` +
+                                          <p>Vous avez reçu une nouvelle demande de ` +
           type +
           ` pour le ` +
           formData.date.split("-").reverse().join("/") +
@@ -359,94 +225,54 @@ router.post("/", async (req, res) => {
           formData.prenom +
           " " +
           formData.nom +
-          `.</br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
-                  <p>Merci pour votre engagement,</p>
-                  <p>Sportivement</p>
-                  <p class="signature">
-                      <b>BDS Efrei Paris</b><br>
-                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                      30-32 avenue de la République 94800 Villejuif
-                  </p>
-              </div>
-              <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-          </div>
-        </body>`;
+          `.</p>
+                                          <p>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
+                                          <p>Merci pour votre engagement,</p>
+                                          <p>Sportivement</p>
+                                          <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                              <b>BDS Efrei Paris</b><br>
+                                              <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                              30-32 avenue de la République 94800 Villejuif
+                                          </p>
+                                      </div>
+                                      <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+          </body>
+          </html>
+          
+
+
+`;
+
         email = "marius.chevailler@efrei.net";
       } else {
         var html =
-          `<header> <title>Nouvelle Demande</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Roboto');
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            h1 {
-                margin:10px 0;
-                padding:0;
-                
-                font-size: 36px;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .container {
-                width: 50%;
-                margin: 0 auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
-                .container {
-                    width: 80%;
-                }
-            }
-
-            .banniere {
-                width: 100%;
-                margin-top:0px;
-                border-radius: 10px;
-            }
-
-            .signature {
-                margin-top: 20px;
-                font-size: 14px;
-                text-align: center;
-            }
-
-            a {
-                color: #000;
-            }
-          </style>
-        </header>
-
-
-        <body>
-          <div class="container">
-          <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80px" alt="confirmed">
-          <h1>Nouvelle demande</h1>
-              <div>
-                  <p>Bonjour ` +
+          `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Nouvelle Demande</title>
+          </head>
+          <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                      <td align="center">
+                          <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                              <tr>
+                                  <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                      <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                      <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">Nouvelle demande</h1>
+                                      <div>
+                                          <p>Bonjour ` +
           userSendTo.users_prenom +
           `,</p>
-                  <p>Vous avez reçu une nouvelle demande de ` +
+                                          <p>Vous avez reçu une nouvelle demande de ` +
           type +
           ` pour le ` +
           formData.date.split("-").reverse().join("/") +
@@ -454,18 +280,29 @@ router.post("/", async (req, res) => {
           formData.prenom +
           " " +
           formData.nom +
-          `.</br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
-                  <p>Merci pour votre engagement,</p>
-                  <p>Sportivement</p>
-                  <p class="signature">
-                      <b>BDS Efrei Paris</b><br>
-                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                      30-32 avenue de la République 94800 Villejuif
-                  </p>
-              </div>
-              <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-          </div>
-        </body>`;
+          `.</p>
+                                          <p>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
+                                          <p>Merci pour votre engagement,</p>
+                                          <p>Sportivement</p>
+                                          <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                              <b>BDS Efrei Paris</b><br>
+                                              <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                              30-32 avenue de la République 94800 Villejuif
+                                          </p>
+                                      </div>
+                                      <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+          </body>
+          </html>
+          
+
+
+`;
 
         email = userSendTo.users_email;
       }
@@ -892,77 +729,25 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
         .reverse()
         .join("/")}] - NOUVELLE DEMANDE`;
       var html =
-        `<header> <title>Nouvelle Demande</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Roboto');
-            body {
-                font-family: 'Roboto', sans-serif;
-                background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-                background-repeat: no-repeat;
-                background-size: cover;
-
-                width: 100%;
-                height: 100%;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-            h1 {
-                margin:10px 0;
-                padding:0;
-                
-                font-size: 36px;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .container {
-                width: 50%;
-                margin: 0 auto;
-                padding: 20px;
-                background: #fff;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-            @media (max-width: 768px) {
-                .container {
-                    width: 80%;
-                }
-            }
-
-            .banniere {
-                width: 100%;
-                margin-top:0px;
-                border-radius: 10px;
-            }
-
-            .signature {
-                margin-top: 20px;
-                font-size: 14px;
-                text-align: center;
-            }
-
-            a {
-                color: #000;
-            }
-          </style>
-        </header>
-
-
-        <body>
-          <div class="container">
-          <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80px" alt="confirmed">
-          <h1>Nouvelle demande</h1>
-              <div>
-                  <p>Bonjour,</p>
-                  <p>Vous avez reçu une nouvelle demande de ` +
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Nouvelle Demande</title>
+        </head>
+        <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                            <tr>
+                                <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                    <img src="https://docs.bds-efrei.fr/icon/new.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                    <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">Nouvelle demande</h1>
+                                    <div>
+                                        <p>Bonjour,</p>
+                                        <p>Vous avez reçu une nouvelle demande de ` +
         form[0].form_type +
         ` pour le ` +
         JSON.parse(form[0].form_data).date.split("-").reverse().join("/") +
@@ -970,18 +755,29 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
         JSON.parse(form[0].form_data).prenom +
         " " +
         JSON.parse(form[0].form_data).nom +
-        `.</br>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
-                  <p>Merci pour votre engagement,</p>
-                  <p>Sportivement</p>
-                  <p class="signature">
-                      <b>BDS Efrei Paris</b><br>
-                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                      30-32 avenue de la République 94800 Villejuif
-                  </p>
-              </div>
-              <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-          </div>
-        </body>`;
+        `.</p>
+                                        <p>Veuillez vous connecter au <a href="https://docs.bds-efrei.fr/admin">site du BDS</a> pour la consulter.</p>
+                                        <p>Merci pour votre engagement,</p>
+                                        <p>Sportivement</p>
+                                        <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                            <b>BDS Efrei Paris</b><br>
+                                            <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                            30-32 avenue de la République 94800 Villejuif
+                                        </p>
+                                    </div>
+                                    <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        
+      
+      
+      `;
 
       // get only those who have not users_send_mail to false
       const maillist = admin
@@ -1020,99 +816,50 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
       );
 
       const html =
-        `<header> <title>DAE Acceptée</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto');
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    h1 {
-        margin:10px 0;
-        padding:0;
-        
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .container {
-        width: 50%;
-        margin: 0 auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    @media (max-width: 768px) {
-        .container {
-            width: 80%;
-        }
-    }
-
-    .banniere {
-        width: 100%;
-        margin-top:0px;
-        border-radius: 10px;
-    }
-
-    .signature {
-        margin-top: 20px;
-        font-size: 14px;
-        text-align: center;
-    }
-
-    a {
-        color: #000;
-    }
-</style>
-</header>
-
-
-<body>
-    <div class="container">
-        <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80px" alt="confirmed">
-        <h1>DAE Acceptée</h1>
-        <div>
-            <p>Bonjour ` +
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>DAE Acceptée</title>
+        </head>
+        <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td align="center">
+                        <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                            <tr>
+                                <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                    <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                    <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Acceptée</h1>
+                                    <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Bonjour ` +
         formData.prenom +
         `,</p>
-            <p>Votre ` +
+                                    <p style="margin: 0 0 0px 0; font-size: 16px; text-align: left;">Votre ` +
         form[0].form_type +
         ` du ` +
         formData.date.split("-").reverse().join("/") +
         ` a été acceptée par ` +
         users[0].users_username +
-        `.</br>Veuillez trouver ci-joint le document PDF à signer et à envoyer par mail à votre référent réussite étudiante ainsi qu’à l’alias absence de votre promo.</p>
-            <p>Merci pour votre engagement,</p>
-            <p>Sportivement</p>
-            <p class="signature">
-                <b>BDS Efrei Paris</b><br>
-                <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                30-32 avenue de la République 94800 Villejuif
-            </p>
-        </div>
-        <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-    </div>
-</body>
-
-
-`;
+        `.</p>
+                                    <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Veuillez trouver ci-joint le document PDF à signer et à envoyer par mail à votre référent réussite étudiante ainsi qu’à l’alias absence de votre promo.</p>
+                                    <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Merci pour votre engagement,</p>
+                                    <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Sportivement</p>
+                                    <p class="signature" style="margin: 20px 0 0 0; font-size: 14px; text-align: center;">
+                                        <b>BDS Efrei Paris</b><br>
+                                        <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                        30-32 avenue de la République 94800 Villejuif
+                                    </p>
+                                    <img src="https://docs.bds-efrei.fr/banniere_mail_bds.png" width="100%" style="display: block; border-radius: 10px; margin: 20px 0 0 0;">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `;
 
       console.log("form id: ", id);
       const [document] = await db.query(
@@ -1164,7 +911,7 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
             filename: "DAE.pdf",
             path: path.join(
               __dirname,
-              `../files/forms/filled/${pdfPath.split("\\").pop()}`
+              `../files/forms/filled/${pdfPath.split("/").pop()}`
             ),
             contentType:
               "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -1311,79 +1058,26 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
     console.log(allusers);
     console.log("form: ", form[0]);
     var html =
-      `<header> <title>DAE Refusée</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto');
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    h1 {
-        margin:10px 0;
-        padding:0;
-        
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .container {
-        width: 50%;
-        margin: 0 auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    @media (max-width: 768px) {
-        .container {
-            width: 80%;
-        }
-    }
-
-    .banniere {
-        width: 100%;
-        margin-top:0px;
-        border-radius: 10px;
-    }
-
-    .signature {
-        margin-top: 20px;
-        font-size: 14px;
-        text-align: center;
-    }
-
-    a {
-        color: #000;
-    }
-</style>
-</header>
-
-
-<body>
-    <div class="container">
-        <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80px" alt="confirmed">
-        <h1>DAE Refusée</h1>
-        <div>
-            <p>Bonjour ` +
+      `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>DAE Refusée</title>
+      </head>
+      <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                  <td align="center">
+                      <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                          <tr>
+                              <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                  <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                  <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
+                                  <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Bonjour ` +
       formData.prenom +
       `,</p>
-            <p>Votre ` +
+                                  <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Votre ` +
       form[0].form_type +
       ` du ` +
       formData.date.split("-").reverse().join("/") +
@@ -1391,20 +1085,25 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
       req.user.users_username +
       ` pour la raison suivante : <b>` +
       reason +
-      `</b>.</br>Nous vous demandons de bien vouloir renouveler votre demande.</p>
-            <p>Merci pour votre engagement,</p>
-            <p>Sportivement</p>
-            <p class="signature">
-                <b>BDS Efrei Paris</b><br>
-                <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                30-32 avenue de la République 94800 Villejuif
-            </p>
-        </div>
-        <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-    </div>
-</body>
-
-
+      `</b>.</p>
+                                  <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Nous vous demandons de bien vouloir renouveler votre demande.</p>
+                                  <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Merci pour votre engagement,</p>
+                                  <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Sportivement</p>
+                                  <p class="signature" style="margin: 20px 0 0 0; font-size: 14px; text-align: center;">
+                                      <b>BDS Efrei Paris</b><br>
+                                      <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                      30-32 avenue de la République 94800 Villejuif
+                                  </p>
+                                  <img src="https://docs.bds-efrei.fr/banniere_mail_bds.png" width="100%" style="display: block; border-radius: 10px; margin: 20px 0 0 0;">
+                              </td>
+                          </tr>
+                      </table>
+                  </td>
+              </tr>
+          </table>
+      </body>
+      </html>
+      
 `;
 
     // convert the data string to json
@@ -1443,81 +1142,31 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
           .join("/")}] - REFUSÉE`;
 
         var html =
-          `<header> <title>DAE Refusée</title> <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto');
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-image: url('https://docs.bds-efrei.fr/banniere_bds.png');
-        background-repeat: no-repeat;
-        background-size: cover;
-
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    h1 {
-        margin:10px 0;
-        padding:0;
-        
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .container {
-        width: 50%;
-        margin: 0 auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    @media (max-width: 768px) {
-        .container {
-            width: 80%;
-        }
-    }
-
-    .banniere {
-        width: 100%;
-        margin-top:0px;
-        border-radius: 10px;
-    }
-
-    .signature {
-        margin-top: 20px;
-        font-size: 14px;
-        text-align: center;
-    }
-
-    a {
-        color: #000;
-    }
-</style>
-</header>
-
-
-<body>
-    <div class="container">
-        <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80px" alt="confirmed">
-        <h1>DAE Refusée</h1>
-        <div><p>Bonjour ` +
+          `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>DAE Refusée</title>
+          </head>
+          <body style="font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-image: url('https://docs.bds-efrei.fr/banniere_bds.png'); background-repeat: no-repeat; background-size: cover; width: 100%; height: 100%; ">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                      <td align="center">
+                          <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
+                              <tr>
+                                  <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+                                      <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                      <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
+                                      <div>
+                                          <p>Bonjour ` +
           asso[0].users_username +
-          `,</p><p>La demande de ` +
+          `,</p>
+                                          <p>La demande de ` +
           form[0].form_type +
           ` du ` +
           formData.date.split("-").reverse().join("/") +
-          `demandée par` +
+          ` demandée par ` +
           formData.prenom +
           " " +
           formData.nom +
@@ -1525,21 +1174,27 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
           req.user.users_username +
           ` pour la raison suivante : <b>` +
           reason +
-          `</b>.</br>Merci de bien vouloir vous connecter au <a href='https://docs.bds-efrei.fr/admin'>site du BDS</a> pour plus d'informations.</p>
-            <p>Merci pour votre engagement,</p>
-            <p>Sportivement</p>
-            <p class="signature">
-                <b>BDS Efrei Paris</b><br>
-                <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a></br>
-                30-32 avenue de la République 94800 Villejuif
-            </p>
-        </div>
-        <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png">
-    </div>
-</body>
-
-
-`;
+          `</b>.</p>
+                                          <p>Merci de bien vouloir vous connecter au <a href='https://docs.bds-efrei.fr/admin'>site du BDS</a> pour plus d'informations.</p>
+                                          <p>Merci pour votre engagement,</p>
+                                          <p>Sportivement</p>
+                                          <p class="signature" style="margin-top: 20px; font-size: 14px; text-align: center;">
+                                              <b>BDS Efrei Paris</b><br>
+                                              <a href="http://www.bds-efrei.fr/">www.bds-efrei.fr</a><br>
+                                              30-32 avenue de la République 94800 Villejuif
+                                          </p>
+                                      </div>
+                                      <img class="banniere" src="https://docs.bds-efrei.fr/banniere_mail_bds.png" style="width: 100%; margin-top:0px; border-radius: 10px;">
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+          </body>
+          </html>
+          
+        `;
 
         const mailOptions = {
           from: `${process.env.EMAIL_FROM}`,
