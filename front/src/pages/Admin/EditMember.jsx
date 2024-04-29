@@ -178,7 +178,7 @@ export default function EditMember() {
                   className="mb-3 w-100"
                   controlId="formBasicUsername"
                 >
-                  <Form.Label>Username</Form.Label>
+                  <Form.Label>Nom et Poste</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="exemple : Marius Chevailler - Président"
@@ -270,7 +270,7 @@ export default function EditMember() {
                       )}
                       <Form.Check
                         type="switch"
-                        label="Hide"
+                        label="Cacher"
                         onChange={(e) =>
                           setForm({ ...form, hide: e.target.checked })
                         }

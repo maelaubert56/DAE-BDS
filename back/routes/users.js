@@ -188,6 +188,12 @@ router.post(
         hide = 0;
       }
 
+      if (isAdmin == "true") {
+        isAdmin = 1;
+      } else if (isAdmin == "false") {
+        isAdmin = 0;
+      }
+
       // insert the user into the database
       await db.execute(
         "INSERT INTO users (users_email, users_permissions, users_hide, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name, users_last_pwd_update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
@@ -236,6 +242,12 @@ router.put(
         "SELECT * FROM users WHERE users_email = ?",
         [email]
       );
+
+      if (isAdmin == "true") {
+        isAdmin = 1;
+      } else if (isAdmin == "false") {
+        isAdmin = 0;
+      }
 
       //check if the user has the permission 2
       if (rows[0].users_permissions === 2) {

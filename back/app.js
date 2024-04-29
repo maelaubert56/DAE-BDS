@@ -13,8 +13,9 @@ app.use(function (req, res, next) {
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   } else {
-    res.setHeader("Access-Control-Allow-Origin", origin); // DEV, TODO: remove this line
+    //res.setHeader("Access-Control-Allow-Origin", origin); // DEV, TODO: remove this line
     console.log("Origin not allowed");
+    res.status(403).send("Origin not allowed");
   }
 
   // Request methods you wish to allow

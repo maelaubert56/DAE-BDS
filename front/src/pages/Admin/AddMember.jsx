@@ -106,10 +106,10 @@ export default function AddMember() {
             <div>
               <div className="d-flex justify-content-between gap-0 gap-sm-3 flex-column flex-sm-row">
                 <Form.Group className="mb-3 w-100" controlId="formBasicEmail">
-                  <Form.Label>Email address</Form.Label>
+                  <Form.Label>Adresse email</Form.Label>
                   <Form.Control
                     type="email"
-                    placeholder="Enter email"
+                    placeholder="Adresse email"
                     onChange={(e) =>
                       setForm({ ...form, email: e.target.value })
                     }
@@ -139,7 +139,7 @@ export default function AddMember() {
                   className="mb-3 w-100"
                   controlId="formBasicUsername"
                 >
-                  <Form.Label>Username</Form.Label>
+                  <Form.Label>Nom et Poste</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="exemple : Marius Chevailler - Président"
@@ -154,10 +154,10 @@ export default function AddMember() {
                   className="mb-3 w-100"
                   controlId="formBasicPassword"
                 >
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>Mot de passe</Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Password"
+                    placeholder="Mot de passe"
                     onChange={(e) =>
                       setForm({ ...form, password: e.target.value })
                     }
@@ -200,7 +200,7 @@ export default function AddMember() {
                   />
                 </Form.Group>
                 <Form.Group
-                  className=" w-100 d-flex align-items-center"
+                  className=" w-100 d-flex gap-1 align-items-center"
                   controlId="formBasicIsAdmin"
                 >
                   <Form.Check
@@ -212,7 +212,7 @@ export default function AddMember() {
                   />
                   <Form.Check
                     type="switch"
-                    label="Hide"
+                    label="Cacher"
                     onChange={(e) =>
                       setForm({ ...form, hide: e.target.checked })
                     }
