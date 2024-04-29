@@ -72,6 +72,12 @@ router.get("/me", authenticateToken, async (req, res) => {
     );
     const user = rows[0];
 
+    // set users_last_connect to current datetime
+    await db.execute(
+      "UPDATE users SET users_last_connect = NOW() WHERE users_username = ?",
+      [req.user.users_username]
+    );
+
     // send the user information to the client
     res.status(200).json({ user });
   } catch (err) {
@@ -117,7 +123,7 @@ router.get("/", async (req, res) => {
   try {
     console.log("route : GET api/users");
     const [rows] = await db.execute(
-      "SELECT users_email, users_username, users_groups_name, users_permissions, users_hide FROM users ORDER BY users_email DESC"
+      "SELECT users_email, users_username, users_groups_name, users_permissions, users_hide, users_last_connect FROM users ORDER BY users_email DESC"
     );
     const users = rows;
 
@@ -184,7 +190,7 @@ router.post(
 
       // insert the user into the database
       await db.execute(
-        "INSERT INTO users (users_email, users_permissions, users_hide, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users (users_email, users_permissions, users_hide, users_nom, users_prenom, users_username, users_password, users_signature, users_groups_name, users_last_pwd_update) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
         [
           email,
           isAdmin,
@@ -249,7 +255,7 @@ router.put(
       if (password) {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         await db.execute(
-          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_groups_name = ?, users_hide = ? WHERE users_email = ?",
+          "UPDATE users SET users_permissions = ?, users_nom = ?, users_prenom = ?, users_username = ?, users_password = ?, users_groups_name = ?, users_hide = ?, users_last_pwd_update = NOW() WHERE users_email = ?",
           [
             isAdmin,
             nom,
@@ -308,7 +314,7 @@ router.put(
 
       // update the user in the database
       await db.execute(
-        "UPDATE users SET users_password = ? WHERE users_email = ?",
+        "UPDATE users SET users_password = ?, users_last_pwd_update = NOW() WHERE users_email = ?",
         [hashedPassword, req.user.users_email]
       );
 
