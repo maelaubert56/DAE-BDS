@@ -1211,8 +1211,8 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
         });
       }
       await db.query(
-        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
-        [reason, id]
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_rejectedBy = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
+        [reason, req.user.users_email, id]
       );
       // delete the signedByAdmin file
       fs.unlinkSync(
@@ -1232,8 +1232,8 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
       );
     } else {
       await db.query(
-        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?,form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
-        [reason, id]
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_rejectedBy = ?, form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
+        [reason, req.user.users_email, id]
       );
       // delete the signedByAdmin file and the signedByAsso file
       if (form[0].form_signed_admin) {

@@ -762,7 +762,15 @@ export default function Admin() {
                                   }
                                 </span>
                                 <span className="text-danger">
-                                  Rejeté par l'admin : {form.form_reject_reason}
+                                  Rejeté par{" "}
+                                  {
+                                    users.find(
+                                      (user) =>
+                                        user.users_email ===
+                                        form.form_rejectedBy
+                                    )?.users_username
+                                  }{" "}
+                                  : {form.form_reject_reason}
                                 </span>
                               </>
                             ) : (
@@ -771,9 +779,9 @@ export default function Admin() {
                                 {
                                   users.find(
                                     (user) =>
-                                      user.users_email === form.form_sentTo
+                                      user.users_email === form.form_rejectedBy
                                   )?.users_username
-                                }{" "}
+                                }
                                 : {form.form_reject_reason}
                               </span>
                             )}
