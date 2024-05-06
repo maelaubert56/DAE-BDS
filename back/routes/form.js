@@ -908,7 +908,10 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
         html: html,
         attachments: [
           {
-            filename: "DAE.pdf",
+            filename: `DAE_${formData.prenom}_${formData.nom}_${formData.date
+              .split("-")
+              .reverse()
+              .join("-")}.pdf`,
             path: path.join(
               __dirname,
               `../files/forms/filled/${pdfPath.split("/").pop()}`
