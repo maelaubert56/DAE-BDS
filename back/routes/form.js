@@ -1075,7 +1075,7 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
                       <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
                           <tr>
                               <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                                  <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                  <img src="https://docs.bds-efrei.fr/icon/cancel.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
                                   <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
                                   <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Bonjour ` +
       formData.prenom +
@@ -1159,7 +1159,7 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
                           <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
                               <tr>
                                   <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                                      <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                      <img src="https://docs.bds-efrei.fr/icon/cancel.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
                                       <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
                                       <div>
                                           <p>Bonjour ` +
