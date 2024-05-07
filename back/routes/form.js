@@ -908,7 +908,10 @@ router.put("/accept/:id", authenticateToken, async (req, res) => {
         html: html,
         attachments: [
           {
-            filename: "DAE.pdf",
+            filename: `DAE_${formData.prenom}_${formData.nom}_${formData.date
+              .split("-")
+              .reverse()
+              .join("-")}.pdf`,
             path: path.join(
               __dirname,
               `../files/forms/filled/${pdfPath.split("/").pop()}`
@@ -1072,7 +1075,7 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
                       <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
                           <tr>
                               <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                                  <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                  <img src="https://docs.bds-efrei.fr/icon/cancel.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
                                   <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
                                   <p style="margin: 0 0 20px 0; font-size: 16px; text-align: left;">Bonjour ` +
       formData.prenom +
@@ -1156,7 +1159,7 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
                           <table width="600" border="0" cellspacing="0" cellpadding="0" style="margin: 26px auto;">
                               <tr>
                                   <td align="center" bgcolor="#ffffff" style="padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                                      <img src="https://docs.bds-efrei.fr/icon/done.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
+                                      <img src="https://docs.bds-efrei.fr/icon/cancel.gif" width="80" alt="confirmed" style="display: block; margin: 0 auto;">
                                       <h1 style="margin: 20px 0; padding: 0; font-size: 36px; font-weight: bold; text-align: center;">DAE Refusée</h1>
                                       <div>
                                           <p>Bonjour ` +
@@ -1211,8 +1214,8 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
         });
       }
       await db.query(
-        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
-        [reason, id]
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_rejectedBy = ?, form_signedByAdmin = null, form_signed_admin = null WHERE form_id = ?',
+        [reason, req.user.users_email, id]
       );
       // delete the signedByAdmin file
       fs.unlinkSync(
@@ -1232,8 +1235,8 @@ router.put("/reject/:id", authenticateToken, async (req, res) => {
       );
     } else {
       await db.query(
-        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?,form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
-        [reason, id]
+        'UPDATE form SET form_statut = "rejected", form_reject_reason = ?, form_rejectedBy = ?, form_signedByAdmin = null, form_signed_admin = null, form_signedByAsso = null, form_signed_asso = null WHERE form_id = ?',
+        [reason, req.user.users_email, id]
       );
       // delete the signedByAdmin file and the signedByAsso file
       if (form[0].form_signed_admin) {

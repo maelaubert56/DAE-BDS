@@ -178,7 +178,7 @@ export default function EditMember() {
                   className="mb-3 w-100"
                   controlId="formBasicUsername"
                 >
-                  <Form.Label>Username</Form.Label>
+                  <Form.Label>Nom et Poste</Form.Label>
                   <Form.Control
                     type="text"
                     placeholder="exemple : Marius Chevailler - Président"
@@ -194,10 +194,25 @@ export default function EditMember() {
                   className="mb-3 w-100"
                   controlId="formBasicPassword"
                 >
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>
+                    Mot de passe{" "}
+                    <span
+                      className="text-muted"
+                      style={{
+                        fontSize: "0.8rem",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {editedUser.users_last_pwd_update
+                        ? `(dernier changement le ${new Date(
+                            editedUser.users_last_pwd_update
+                          ).toLocaleDateString()})`
+                        : "(jamais changé)"}
+                    </span>
+                  </Form.Label>
                   <Form.Control
                     type="password"
-                    placeholder="Password"
+                    placeholder="Mot de passe"
                     onChange={(e) =>
                       setForm({ ...form, password: e.target.value })
                     }
@@ -255,7 +270,7 @@ export default function EditMember() {
                       )}
                       <Form.Check
                         type="switch"
-                        label="Hide"
+                        label="Cacher"
                         onChange={(e) =>
                           setForm({ ...form, hide: e.target.checked })
                         }

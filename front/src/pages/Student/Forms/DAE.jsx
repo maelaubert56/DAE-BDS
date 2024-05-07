@@ -158,7 +158,7 @@ export default function FormDAE() {
         console.log(res.status);
         if (res.status === 201) {
           alert(
-            "DAE envoyée ✅\nVous recevrez la recevrez signée par mail si elle est validée."
+            "DAE envoyée ✅\nVous la recevrez signée par mail si elle est validée."
           );
           setStudent({
             nom: "",
