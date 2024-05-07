@@ -22,6 +22,8 @@ export default function Header() {
         .then((res) => {
           if (res.status !== 200) {
             setIsLogged(false);
+            localStorage.removeItem("token");
+            window.location.href = "/";
           }
           return res.json();
         })
@@ -89,12 +91,12 @@ export default function Header() {
             </div>
             {isLogged ? (
               <NavDropdown
-                title={user.users_username}
+                title={user?.users_username}
                 id="basic-nav-dropdown"
                 autoClose="outside"
               >
                 <NavDropdown.Item href="/admin">Dashboard</NavDropdown.Item>
-                {user.users_permissions === 2 && (
+                {user?.users_permissions === 2 && (
                   <NavDropdown.Item href="/admin/manage-members">
                     Manager les membres
                   </NavDropdown.Item>
@@ -108,7 +110,7 @@ export default function Header() {
                     type="switch"
                     id="custom-switch"
                     label="Recevoir les mails"
-                    checked={user.users_send_mail}
+                    checked={user?.users_send_mail}
                     onChange={() => {
                       handleChangeSendMail();
                     }}
